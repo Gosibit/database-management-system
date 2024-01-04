@@ -2,23 +2,28 @@
 
 #include <vector>
 #include <map>
+#include <string>
 
 class Keyword
 {
     std::string name;
-    std::vector<std::string> possibleSuccessors;
-    std::vector<std::string> foundInteractions;
+    std::vector<std::string> compatibleKeywords;
     std::string query;
-
+    void assignKeywordArguments();
+    void assignInteractions(std::vector<std::string> foundInteractionsArg);
+protected:
+    std::string keywordArguments;
+    std::vector < std::pair<std::string, std::string>> foundInteractions;
 public:
     static std::vector<std::string> supportedKeywords;
     static std::map<std::string, Keyword*> keywords;
-    Keyword(std::string nameArg, std::vector<std::string> possibleSuccessorsArg);
+    Keyword(std::string nameArg, std::vector<std::string> compatibleKeywordsArg);
     void println();
+    bool isKeywordCompatible(std::string keyword);
     std::string getName();
     void prepare(std::string queryArg);
     virtual void process();
-    std::vector<std::string> getPossibleSuccessors();
-    std::vector<std::string> getFoundInteractions();
+    std::vector<std::string> getCompatibleKeywords();
+    std::vector<std::pair<std::string, std::string>> getFoundInteractions();
     std::string getQuery();
 };

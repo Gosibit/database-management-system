@@ -8,24 +8,28 @@
 #include <sstream>
 #include <fmt/ranges.h>
 #include "./includes/Keyword.h"
+#include "./includes/stringUtilities.h"
 
 int main() {
     auto tables = std::map<std::string, Table*>();
-    auto query = std::string();
-    std::getline(std::cin, query);
 
-    auto& keywords = Keyword::keywords;
+    while (true) {
+        auto query = std::string();
+        std::getline(std::cin, query);
 
-    auto queryWords = tokenize(query, " ");
+        auto& keywords = Keyword::keywords;
 
-    for (auto& word : queryWords) {
-        auto find = keywords.find(word);
+        auto queryWords = tokenize(query, " ");
 
-        if (find != keywords.end()) {
-            fmt::println("Found keyword: {}", word);
-            auto keyword = find->second;
-            keyword->prepare(query);
-            keyword->process();
+        for (auto& word : queryWords) {
+            auto find = keywords.find(word);
+
+            if (find != keywords.end()) {
+                fmt::println("Found keyword: {}", word);
+                auto keyword = find->second;
+                keyword->prepare(query);
+                keyword->process();
+            }
         }
     }
 

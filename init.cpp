@@ -1,3 +1,4 @@
+#pragma once
 #include "./includes/KeywordDerivaties.h"
 
 auto createTable = CreateTable();

@@ -3,7 +3,7 @@ project(cpp-db-mvp)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(cpp-db-mvp main.cpp includes/Table.cpp includes/tokenizer.cpp includes/Keyword.cpp includes/KeywordDerivaties.cpp init.cpp)
+add_executable(cpp-db-mvp main.cpp includes/Table.cpp includes/tokenizer.cpp includes/Keyword.cpp includes/KeywordDerivaties.cpp init.cpp includes/Column.cpp includes/stringUtilities.cpp)
 
 
 include(FetchContent)

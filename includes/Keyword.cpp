@@ -6,10 +6,13 @@
 #include "Keyword.h"
 #include <string>
 #include "tokenizer.h"
+#include "stringUtilities.h"
 
 std::vector<std::string> Keyword::supportedKeywords = {
    "ALTER_TABLE",
    "CREATE_TABLE",
+   "ADD_COLUMN",
+    "DROP_COLUMN",
    "INSERT",
    "SELECT",
    "FROM",
@@ -18,9 +21,9 @@ std::vector<std::string> Keyword::supportedKeywords = {
 
 std::map<std::string, Keyword*> Keyword::keywords = std::map<std::string, Keyword*>();
 
-Keyword::Keyword(std::string nameArg, std::vector<std::string> possibleSuccessorsArg) {
+Keyword::Keyword(std::string nameArg, std::vector<std::string> compatibleKeywordsArg) {
     name = nameArg;
-    possibleSuccessors = possibleSuccessorsArg;
+    compatibleKeywords = compatibleKeywordsArg;
 }
 
 void Keyword::process() {
@@ -31,38 +34,74 @@ std::string Keyword::getName() {
     return name;
 }
 
+void Keyword::assignInteractions(std::vector<std::string> foundInteractions) {
+    for (auto iter = foundInteractions.begin(); iter != foundInteractions.end(); ++iter) {
+        auto endDelimiter = std::string();
+        if (iter + 1 != foundInteractions.end()) {
+            endDelimiter = *(iter + 1);
+        }
+        else {
+            endDelimiter = ";";
+        }
+
+        auto interaction = std::make_pair(*iter, getPartBetweenDelimiters(query, *iter, endDelimiter));
+        this->foundInteractions.push_back(interaction);
+    }
+};
+
+void Keyword::assignKeywordArguments() {
+    auto keywordArgumentsDelimiter = std::string();
+    if (!foundInteractions.empty()) keywordArgumentsDelimiter = foundInteractions.begin()->first;
+    else keywordArgumentsDelimiter = ";";
+
+    keywordArguments = getPartBetweenDelimiters(query, name, keywordArgumentsDelimiter);
+}
+
 void Keyword::prepare(std::string queryArg) {
     query = queryArg;
-    foundInteractions = std::vector<std::string>();
-
+    foundInteractions = std::vector<std::pair<std::string, std::string>>();
+    auto foundInteractions = std::vector<std::string>();
     auto queryWords = tokenize(query, " ");
 
     for (auto& word : queryWords) {
-
-        auto find = std::find(possibleSuccessors.begin(), possibleSuccessors.end(), word);
-
-        if (find != possibleSuccessors.end()) {
+        if (isKeywordCompatible(word)) {
             foundInteractions.push_back(word);
         }
     }
+
+    assignInteractions(foundInteractions);
+    assignKeywordArguments();
+
+    println();
 }
 
 void Keyword::println() {
     fmt::print("Keyword: {}, ", name);
-    fmt::print("Possible successors: {}, ", fmt::join(possibleSuccessors, ", "));
+    fmt::print("Possible successors: {}, ", fmt::join(compatibleKeywords, ", "));
+    fmt::print("Keyword arguments: {}, ", keywordArguments);
     fmt::print("Found interactions: {}", fmt::join(foundInteractions, ", "));
 }
 
-std::vector<std::string> Keyword::getPossibleSuccessors() {
-    return possibleSuccessors;
+std::vector<std::string> Keyword::getCompatibleKeywords() {
+    return compatibleKeywords;
 }
 
-std::vector<std::string> Keyword::getFoundInteractions() {
+std::vector<std::pair<std::string, std::string>> Keyword::getFoundInteractions() {
     return foundInteractions;
 }
 
 std::string Keyword::getQuery() {
     return query;
+}
+
+bool Keyword::isKeywordCompatible(std::string keyword) {
+    auto find = std::find(compatibleKeywords.begin(), compatibleKeywords.end(), keyword);
+
+    if (find != compatibleKeywords.end()) {
+        return true;
+    }
+
+    return false;
 }
 
 
