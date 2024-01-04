@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.27)
-project(db_mvp)
+project(cpp-db-mvp)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(db_mvp main.cpp)
+add_executable(cpp-db-mvp main.cpp includes/Table.cpp includes/tokenizer.cpp includes/Keyword.cpp includes/KeywordDerivaties.cpp init.cpp)
+
 
 include(FetchContent)
 
@@ -15,5 +16,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(fmt)
 
-add_executable(db_mvp main.cpp)
-target_link_libraries(db_mvp fmt)
+target_link_libraries(cpp-db-mvp fmt)
+
+
+
