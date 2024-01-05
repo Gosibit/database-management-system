@@ -1,39 +1,50 @@
-#include <iostream>
+#include "./includes/TypeDerivaties.h"
 #include <fmt/core.h>
-#include "./includes/Table.h"
-#include "./includes/Table.h"
-#include "./includes/tokenizer.h"
+#include <fmt/ranges.h>
 #include <stdio.h>
 #include <string.h>
+
+#include <iostream>
 #include <sstream>
-#include <fmt/ranges.h>
+
 #include "./includes/Keyword.h"
+#include "./includes/Table.h"
 #include "./includes/stringUtilities.h"
+#include "./includes/tokenizer.h"
 
 int main() {
-    auto tables = std::map<std::string, Table*>();
+  //    while (true) {
+  auto input = std::string();
+  input =
+      "CREATE_TABLE tab1 (col1 int, col2 varchar, col3 int);ALTER_TABLE "
+      "tab1 DROP_COLUMN col2; CREATE_TABLE tab2 (col1 varchar, col2 "
+      "varchar); CREATE_TABLE tab3 (col1 varchar, col2 varchar); DROP_TABLE "
+      "tab2; ALTER_TABLE andrzej RENAME_TO andrzej2;";
 
-    while (true) {
-        auto query = std::string();
-        std::getline(std::cin, query);
+  //    std::getline(std::cin, input);
+  auto multipleQuriesSplitted = splitByQueries(input);
 
-        auto& keywords = Keyword::keywords;
+  auto &keywords = Keyword::keywords;
 
-        auto queryWords = tokenize(query, " ");
+  for (auto &query : multipleQuriesSplitted) {
+    auto queryWords = tokenize(query, " ");
+    auto find = keywords.find(queryWords[0]);
 
-        for (auto& word : queryWords) {
-            auto find = keywords.find(word);
-
-            if (find != keywords.end()) {
-                fmt::println("Found keyword: {}", word);
-                auto keyword = find->second;
-                keyword->prepare(query);
-                keyword->process();
-            }
-        }
+    if (find != keywords.end()) {
+      auto keyword = find->second;
+      keyword->prepare(query);
+      try {
+        keyword->process();
+      } catch (std::exception &e) {
+        fmt::println("Error while executing query: {}", e.what());
+      }
     }
 
+    Keyword::resetKeywordsData();
+  }
 
+  fmt::println("");
+  //    }
 
-    return 0;
+  return 0;
 }
