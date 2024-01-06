@@ -84,29 +84,62 @@ void DropTable::process() {
   Table::printTables();
 }
 
-InsertInto::InsertInto() : Keyword("INSERT_INTO", {}) {
+InsertInto::InsertInto() : Keyword("INSERT_INTO", {"VALUES"}) {
   Keyword::keywords.insert(std::make_pair("INSERT_INTO", this));
 };
 
 void InsertInto::process() {
-  auto args = splitBySpace(keywordArguments); // {tab_name, values}
-  auto tableName = trim(args[0]);
-  auto values = trim(args[1]);
+  // INSERT_INTO tab1 (col1, col2, col3) VALUES (1, 'a', 2);
+  auto trimmedKeywordArgs = trim(keywordArguments);
+  auto tableName = getPartBeforeDelimiter(trimmedKeywordArgs, "(");
+
+  auto columnNamesPart = getPartBetweenDelimiters(trimmedKeywordArgs, "(", ")");
+
+  auto columnNamesVector = splitByComma(columnNamesPart);
+
+  if (foundInteractions.find("VALUES") == foundInteractions.end()) {
+    throw std::runtime_error("Missing `VALUES` statement");
+  }
+
+  auto valuesPart = foundInteractions["VALUES"];
+  auto valuesPartReadyToSplit = removeBrackets(trim(valuesPart));
+
+  auto valuesVector = splitByComma(valuesPartReadyToSplit);
+
+  if (columnNamesVector.size() != valuesVector.size()) {
+    throw std::runtime_error("Number of columns and values does not match");
+  }
 
   auto *table = Table::getTable(tableName);
 
-  auto valuesArgs = getPartBetweenDelimiters(
-      this->getQuery(), "(", ")"); // col1 int, col2 string, col3 int
-  auto splittedValuesArgs =
-      splitByComma(valuesArgs); // {col1 int, col2 string, col3 int}
+  auto insertArguments = std::vector<std::pair<std::string, std::string>>();
 
-  std::vector<std::string> valuesVector;
-  for (auto &value : splittedValuesArgs) {
-    auto valueTrimmed = trim(value);
-    valueTrimmed = removeSemicolons(valueTrimmed);
-    valuesVector.push_back(valueTrimmed);
+  for (int i = 0; i < columnNamesVector.size(); i++) {
+    auto columnName = columnNamesVector[i];
+    auto value = valuesVector[i];
+    insertArguments.push_back(std::make_pair(columnName, value));
   }
 
-  table->insert(valuesVector);
+  table->insertInto(insertArguments);
   Table::printTables();
+}
+
+Select::Select() : Keyword("SELECT", {"FROM", "WHERE"}) {
+  Keyword::keywords.insert(std::make_pair("SELECT", this));
+};
+
+void Select::process() {
+
+  if(foundInteractions.find("FROM") == foundInteractions.end()) {
+    throw std::runtime_error("Missing `FROM` statement");
+  }
+
+
+  auto trimmedKeywordArgs = trim(keywordArguments);
+  auto columnNames = splitByComma(trimmedKeywordArgs);
+
+  auto tableName = trim(foundInteractions["FROM"]);
+  auto *table = Table::getTable(tableName);
+
+  table->select(columnNames);
 }

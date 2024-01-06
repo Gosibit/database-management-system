@@ -74,3 +74,18 @@ std::vector<std::string> splitByQueries(std::string str) {
 std::string removeSemicolons(std::string str) {
     return removeAllOccurencies(str, ';');
 }
+
+std::string fieldToString(valueField field) {
+    if (std::holds_alternative<int>(field)) {
+        return std::to_string(std::get<int>(field));
+    } else if (std::holds_alternative<double>(field)) {
+        return std::to_string(std::get<double>(field));
+    } else if (std::holds_alternative<float>(field)) {
+        return std::to_string(std::get<float>(field));
+    } else if (std::holds_alternative<bool>(field)) {
+        return std::to_string(std::get<bool>(field));
+    } else if (std::holds_alternative<std::string>(field)) {
+        return std::get<std::string>(field);
+    }
+    throw std::runtime_error("Unknown type, couldn't parse to string");
+}

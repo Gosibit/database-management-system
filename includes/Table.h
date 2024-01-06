@@ -2,14 +2,15 @@
 
 #include <iostream>
 #include <map>
-
+#include "aliases.h"
 #include "Column.h"
+
 
 class Table {
   std::string name;
-  std::map<std::string, Column *> columns; // name, type
-  std::map<std::string, std::map<std::string, std::string>>
-      rows; // id, column , val
+  std::map<std::string, Column *> columns;               // name, type
+  std::map<std::string, std::map<Column *, valueField>> // id[column, value]
+      rows;
   int lastId;
 
 public:
@@ -21,6 +22,15 @@ public:
   void renameTo(std::string newName);
   void addColumn(std::string columnName, std::string columnType);
   void dropColumn(std::string columnName);
-  void insertInto(std::string values);
+  void select(std::vector<std::string> columnNames);
+  void insertInto(
+      std::vector<std::pair<std::string, std::string>> columnNamesAndValues);
   void printColumns();
+  void printRows();
+
+  Column *getColumn(std::string columnName);
 };
+
+
+
+

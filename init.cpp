@@ -5,6 +5,8 @@
 auto createTable = CreateTable();
 auto alterTable = AlterTable();
 auto dropTable = DropTable();
+auto insertInto = InsertInto();
+auto select = Select();
 
 auto intType = Int();
 auto varcharType = Varchar();

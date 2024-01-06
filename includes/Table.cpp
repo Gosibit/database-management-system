@@ -3,7 +3,7 @@
 
 #include <fmt/core.h>
 #include <fmt/ranges.h>
-
+#include "stringUtilities.h"
 #include <iostream>
 
 std::map<std::string, Table *> Table::tables = std::map<std::string, Table *>();
@@ -23,7 +23,7 @@ Table *Table::getTable(std::string name) {
 void Table::println() {
   fmt::print("Table: {}, ", name);
   printColumns();
-  fmt::print("Rows: {}", rows);
+  printRows();
   fmt::println("");
 }
 
@@ -43,6 +43,13 @@ void Table::printColumns() {
   }
 }
 
+Column *Table::getColumn(std::string columnName) {
+  if (columns.find(columnName) == columns.end())
+    throw std::runtime_error("Column " + columnName + " not found");
+
+  return columns[columnName];
+}
+
 void Table::renameTo(std::string newName) { name = newName; }
 
 void Table::addColumn(std::string columnName, std::string columnType) {
@@ -56,4 +63,52 @@ void Table::addColumn(std::string columnName, std::string columnType) {
 void Table::dropColumn(std::string columnName) {
   delete columns.at(columnName);
   columns.erase(columnName);
+}
+
+void Table::printRows() {
+  fmt::println("");
+  for(auto &row : rows) {
+    fmt::print("id: {}, ", row.first);
+    for(auto &column : row.second) {
+      auto typeName = column.first->getType()->getName();
+        auto value = column.second;
+        fmt::print("column: {}, value: {}, ", column.first->getName(), fieldToString(value));
+    }
+  }
+}
+
+void Table::insertInto(
+    std::vector<std::pair<std::string, std::string>> columnNamesAndValues) {
+  lastId++;
+
+  for (auto &pair : columnNamesAndValues) {
+    auto columnName = pair.first;
+    auto value = pair.second;
+
+    auto *column = getColumn(columnName);
+    auto *type = column->getType();
+
+    if (!type->isValueValid(value)) {
+      lastId--;
+      throw std::runtime_error("Value " + value + " is not valid for type " + type->getName());
+    }
+
+    rows[std::to_string(lastId)][column] = type->parseValue(value);
+  }
+}
+
+
+void Table::select(std::vector<std::string> columnNames) {
+  fmt::println("Selecting columns: {}", fmt::join(columnNames, ", "));
+  for (auto &row : rows) {
+    for (auto &columnValuePair : row.second) {
+      auto *column = columnValuePair.first;
+      auto value = columnValuePair.second;
+
+      if (std::find(columnNames.begin(), columnNames.end(), column->getName()) != columnNames.end()) {
+        fmt::println("Column name: {}, value: {}",column->getName(), fieldToString(value));
+      }
+    }
+    fmt::println("");
+  }
 }

@@ -1,12 +1,12 @@
 #pragma once
 #include "Type.h"
 #include <string>
-
+#include "aliases.h"
 std::map<std::string, Type *> Type::types = std::map<std::string, Type *>();
 
 Type::Type(std::string nameArg) { name = nameArg; };
 
-bool Type::validate(std::string value) { return true; }
+bool Type::isValueValid(std::string value) { return true; }
 
 std::string Type::getName() { return name; }
 
@@ -15,3 +15,21 @@ Type *Type::getType(std::string name) {
     throw std::runtime_error("Type " + name + " not found");
   return types[name];
 }
+
+valueField Type::parseValue(std::string value) {
+  if (name == "int") {
+    return std::stoi(value);
+  } else if (name == "float") {
+    return std::stof(value);
+  } else if (name == "double") {
+    return std::stod(value);
+  } else if (name == "bool") {
+    return value == "true";
+  }else if (name == "varchar") {
+    return value;
+  } else {
+    throw std::runtime_error("Type " + name + " not found");
+  }
+}
+
+

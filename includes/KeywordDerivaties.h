@@ -26,3 +26,9 @@ public:
   InsertInto();
   void process();
 };
+
+class Select : public Keyword {
+public:
+  Select();
+  void process();
+};

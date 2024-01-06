@@ -8,43 +8,48 @@
 
 Int::Int() : Type("int") { Type::types.insert(std::make_pair("int", this)); }
 // check
-bool Int::validate(std::string value) {
+bool Int::isValueValid(std::string value) {
   try {
-    std::stoi(value);
-    return true;
+    auto parsedValue = std::stoi(value);
+    if (std::to_string(parsedValue) != value) return false;
   } catch (std::exception &e) {
     return false;
   }
+
+  return true;
 }
 
 Varchar::Varchar() : Type("varchar") {
   Type::types.insert(std::make_pair("varchar", this));
 }
 
-bool Varchar::validate(std::string value) { return true; }
+bool Varchar::isValueValid(std::string value) { return true; }
 
 Float::Float() : Type("float") {
   Type::types.insert(std::make_pair("float", this));
 }
 
-bool Float::validate(std::string value) {
+bool Float::isValueValid(std::string value) {
   try {
-    std::stof(value);
-    return true;
+    auto parsedValue = std::stof(value);
+//    fmt::println("parsedValue: {}, value: {}", std::to_string(parsedValue), value);
+//    if (std::to_string(parsedValue) != value) return false;
   } catch (std::exception &e) {
     return false;
   }
+  return true;
 }
 
 Double::Double() : Type("double") {
   Type::types.insert(std::make_pair("double", this));
 }
 
-bool Double::validate(std::string value) {
+bool Double::isValueValid(std::string value) {
   try {
-    std::stod(value);
-    return true;
+    auto parsedValue = std::stod(value);
+    if (std::to_string(parsedValue) != value) return false;
   } catch (std::exception &e) {
     return false;
   }
+  return true;
 }
