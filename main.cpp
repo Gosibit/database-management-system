@@ -1,22 +1,24 @@
-#include <fmt/core.h>
 #include "./includes/Keyword.h"
 #include "./includes/stringUtilities.h"
 #include "./includes/tokenizer.h"
+#include <fmt/core.h>
+#include <iostream>
 
 int main() {
-  //    while (true) {
+  //  while (true) {
   auto input = std::string();
-  //  input =
-  //      "CREATE_TABLE tab1 (col1 int, col2 varchar, col3 int);ALTER_TABLE "
-  //      "tab1 DROP_COLUMN col2; CREATE_TABLE tab2 (col1 varchar, col2 "
-  //      "varchar); CREATE_TABLE tab3 (col1 varchar, col2 varchar); DROP_TABLE
-  //      " "tab2;";
 
-  input = "CREATE_TABLE tab1 (col1 int, col2 varchar, col3 int); INSERT_INTO "
-          "tab1 (col1, col2, col3) VALUES (1, 'stringval', 123); SELECT col1, col3 FROM tab1;";
-
-//  input = "CREATE_TABLE tab1 (col1 int, col2 varchar, col3 int); SELECT col1, col2 FROM tab1 WHERE col1 = 1 AND col2 = 'val2';";
-
+  input = "CREATE_TABLE tab1 (col12345678 int, col2 varchar, col3 int, col4 "
+          "boolean);"
+          "INSERT_INTO tab1 (col12345678, col2, col4) VALUES (1, 'stringval', "
+          "true);"
+          "INSERT_INTO tab1 (col12345678, col2, col4) VALUES (12232332, "
+          "'stringvalLLLLLL', false);"
+          "INSERT_INTO tab1 (col12345678, col2, col3, col4) VALUES (12232332, "
+          "'stringvalLLLLLL', 2, true);"
+          "SELECT col12345678, col2, col3, col4 FROM tab1 WHERE col12345678 = "
+          "12232332 OR col4 = true;"
+          "SELECT col12345678, col2, col3, col4 FROM tab1;";
 
   //    std::getline(std::cin, input);
   auto multipleQueriesSplitted = splitByQueries(input);
@@ -40,10 +42,8 @@ int main() {
     }
 
     Keyword::resetKeywordsData();
+    //    }
   }
-
-  fmt::println("");
-  //    }
 
   return 0;
 }

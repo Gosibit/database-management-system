@@ -16,4 +16,4 @@ std::vector<std::string> splitBySpace(std::string str);
 std::vector<std::string> splitByQueries(std::string str);
 std::string removeSemicolons(std::string str);
 std::string trim(std::string str);
-std::string fieldToString(valueField field);
+std::string fieldToString(fieldValueType field);

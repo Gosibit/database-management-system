@@ -12,3 +12,4 @@ auto intType = Int();
 auto varcharType = Varchar();
 auto floatType = Float();
 auto doubleType = Double();
+auto booleanType = boolean();

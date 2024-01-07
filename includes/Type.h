@@ -11,5 +11,5 @@ public:
   static Type *getType(std::string name);
   virtual bool isValueValid(std::string value);
   std::string getName();
-  valueField parseValue(std::string value);
+  fieldValueType parseValue(std::string value);
 };

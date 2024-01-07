@@ -11,7 +11,8 @@ Int::Int() : Type("int") { Type::types.insert(std::make_pair("int", this)); }
 bool Int::isValueValid(std::string value) {
   try {
     auto parsedValue = std::stoi(value);
-    if (std::to_string(parsedValue) != value) return false;
+    if (std::to_string(parsedValue) != value)
+      return false;
   } catch (std::exception &e) {
     return false;
   }
@@ -32,8 +33,9 @@ Float::Float() : Type("float") {
 bool Float::isValueValid(std::string value) {
   try {
     auto parsedValue = std::stof(value);
-//    fmt::println("parsedValue: {}, value: {}", std::to_string(parsedValue), value);
-//    if (std::to_string(parsedValue) != value) return false;
+    //    fmt::println("parsedValue: {}, value: {}",
+    //    std::to_string(parsedValue), value); if (std::to_string(parsedValue)
+    //    != value) return false;
   } catch (std::exception &e) {
     return false;
   }
@@ -47,9 +49,20 @@ Double::Double() : Type("double") {
 bool Double::isValueValid(std::string value) {
   try {
     auto parsedValue = std::stod(value);
-    if (std::to_string(parsedValue) != value) return false;
+    if (std::to_string(parsedValue) != value)
+      return false;
   } catch (std::exception &e) {
     return false;
   }
   return true;
+}
+
+boolean::boolean() : Type("boolean") {
+  Type::types.insert(std::make_pair("boolean", this));
+}
+
+bool boolean::isValueValid(std::string value) {
+  if (value == "true" || value == "false")
+    return true;
+  return false;
 }

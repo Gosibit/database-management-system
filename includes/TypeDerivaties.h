@@ -26,3 +26,9 @@ public:
   Double();
   bool isValueValid(std::string value);
 };
+
+class boolean : public Type {
+public:
+  boolean();
+  bool isValueValid(std::string value);
+};

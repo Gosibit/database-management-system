@@ -2,7 +2,7 @@
 #include "stringUtilities.h"
 
 #include <string>
-
+#include <variant>
 #include "tokenizer.h"
 
 std::string getPartAfterDelimiter(std::string str, std::string delimiter) {
@@ -75,7 +75,7 @@ std::string removeSemicolons(std::string str) {
     return removeAllOccurencies(str, ';');
 }
 
-std::string fieldToString(valueField field) {
+std::string fieldToString(fieldValueType field) {
     if (std::holds_alternative<int>(field)) {
         return std::to_string(std::get<int>(field));
     } else if (std::holds_alternative<double>(field)) {
@@ -84,7 +84,10 @@ std::string fieldToString(valueField field) {
         return std::to_string(std::get<float>(field));
     } else if (std::holds_alternative<bool>(field)) {
         return std::to_string(std::get<bool>(field));
-    } else if (std::holds_alternative<std::string>(field)) {
+    } else if (std::holds_alternative<std::nullptr_t>(field)) {
+        return "NULL";
+    }
+    else if (std::holds_alternative<std::string>(field)) {
         return std::get<std::string>(field);
     }
     throw std::runtime_error("Unknown type, couldn't parse to string");

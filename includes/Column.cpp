@@ -8,11 +8,11 @@ Column::Column(std::string nameArg, Type *typeArg) {
   name = nameArg;
   type = typeArg;
   relatedColumn = nullptr;
-  isPrimaryKey = false;
-  isForeignKey = false;
-  isUnique = false;
-  isNotNull = false;
-  isAutoIncrement = false;
+  primaryKey = false;
+  foreignKey = false;
+  unique = false;
+  nullable = true;
+  autoIncrement = false;
 }
 
 void Column::println() {
@@ -22,3 +22,5 @@ void Column::println() {
 std::string Column::getName() { return name; }
 
 Type *Column::getType() { return type; }
+
+bool Column::isNullable() { return nullable; }

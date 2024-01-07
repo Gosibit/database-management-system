@@ -5,6 +5,7 @@
 #include <fmt/core.h>
 #include <fmt/ranges.h>
 
+#include "ArgumentsForComparing.h"
 #include "Table.h"
 #include "stringUtilities.h"
 #include "tokenizer.h"
@@ -127,13 +128,11 @@ void InsertInto::process() {
 Select::Select() : Keyword("SELECT", {"FROM", "WHERE"}) {
   Keyword::keywords.insert(std::make_pair("SELECT", this));
 };
-
 void Select::process() {
 
-  if(foundInteractions.find("FROM") == foundInteractions.end()) {
+  if (foundInteractions.find("FROM") == foundInteractions.end()) {
     throw std::runtime_error("Missing `FROM` statement");
   }
-
 
   auto trimmedKeywordArgs = trim(keywordArguments);
   auto columnNames = splitByComma(trimmedKeywordArgs);
@@ -141,5 +140,40 @@ void Select::process() {
   auto tableName = trim(foundInteractions["FROM"]);
   auto *table = Table::getTable(tableName);
 
-  table->select(columnNames);
+  auto argumentsToCompare = std::vector<ArgumentsForComparing>();
+
+  if (foundInteractions.find("WHERE") != foundInteractions.end()) {
+    auto whereArguments = foundInteractions["WHERE"]; // col1 = 1 AND col2 = 'a'
+    auto whereArgumentsSplitted =
+        splitBySpace(whereArguments); // {col1, =, 1, AND, col2, =, 'a'}
+
+    for (int i = 0; i < whereArgumentsSplitted.size(); i += 3) {
+      auto valueArg = whereArgumentsSplitted[i + 2];
+      auto operatorArg = whereArgumentsSplitted[i + 1];
+      auto columnName = whereArgumentsSplitted[i];
+      auto logicalOperator = std::string();
+      if (whereArgumentsSplitted[i + 3] == "AND" ||
+          whereArgumentsSplitted[i + 3] == "OR") {
+        logicalOperator = whereArgumentsSplitted[i + 3];
+        i++;
+      } else {
+        logicalOperator = "AND";
+      }
+
+      auto *column = table->getColumn(columnName);
+      auto *type = column->getType();
+      fmt::println("valueArg: {}", valueArg);
+      if (!type->isValueValid(valueArg)) {
+        throw std::runtime_error("Value " + valueArg +
+                                 " is not valid for type " + type->getName());
+      }
+
+      auto parsedArgValue = column->getType()->parseValue(valueArg);
+
+      argumentsToCompare.push_back(ArgumentsForComparing(
+          parsedArgValue, operatorArg, columnName, logicalOperator));
+    }
+  }
+
+  table->select(columnNames, argumentsToCompare);
 }

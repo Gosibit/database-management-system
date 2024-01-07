@@ -1,5 +1,7 @@
-#include <string>
+#pragma once
 
-using valueField = std::variant<int, double, float, bool, std::string>;
+#include <string>
+#include <optional>
+using fieldValueType = std::variant<int, double, float, bool, std::nullptr_t , std::string>;
 
 
