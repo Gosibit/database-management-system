@@ -92,7 +92,7 @@ void Table::drawTable(std::vector<std::string> columnNames,
     }
   }
 
-  auto horizontalLine = std::string();
+  auto horizontalLine = std::string("*-");
   for (auto &longestValue : longestValueInColumn) {
     horizontalLine.append(longestValue.second, '-');
     horizontalLine += "-+-";
@@ -100,6 +100,7 @@ void Table::drawTable(std::vector<std::string> columnNames,
   horizontalLine = horizontalLine.substr(0, horizontalLine.size() -
                                                 1); // always one - too much
   fmt::println("{}", horizontalLine);
+  fmt::print("| ");
   for (auto &columnName : columnNames) {
     auto value = columnName;
     value.append(longestValueInColumn[columnName] - value.size(), ' ');
@@ -110,6 +111,7 @@ void Table::drawTable(std::vector<std::string> columnNames,
   fmt::println("{}", horizontalLine);
 
   for (auto &rowId : rowIdsToSelect) {
+    fmt::print("| ");
     if (rows.find(rowId) == rows.end()) {
       throw std::runtime_error("Row with id " + rowId + " not found");
     }
