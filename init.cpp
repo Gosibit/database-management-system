@@ -7,6 +7,10 @@ auto alterTable = AlterTable();
 auto dropTable = DropTable();
 auto insertInto = InsertInto();
 auto select = Select();
+auto update = Update();
+auto deleteFrom = DeleteFrom();
+auto dumpCreate = DumpCreate();
+auto dumpRestore = DumpRestore();
 
 auto intType = Int();
 auto varcharType = Varchar();

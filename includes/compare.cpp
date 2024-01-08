@@ -19,6 +19,12 @@ bool compareWithLogicalOperator(fieldValueType arg1, std::string operatorArg,
 bool compare(fieldValueType arg1, std::string operatorArg,
              fieldValueType arg2) {
 
+  if (operatorArg == "IS_NULL") {
+    return std::holds_alternative<nullptr_t>(arg1);
+  } else if (operatorArg == "IS_NOT_NULL") {
+    return !std::holds_alternative<nullptr_t>(arg1);
+  }
+
   if (std::holds_alternative<int>(arg1) && std::holds_alternative<int>(arg2)) {
     if (operatorArg == "=") {
       return std::get<int>(arg1) == std::get<int>(arg2);

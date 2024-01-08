@@ -4,15 +4,16 @@
 #include "Type.h"
 #include <fmt/core.h>
 
-Column::Column(std::string nameArg, Type *typeArg) {
+Column::Column(std::string nameArg, Type *typeArg, bool nullableArg,
+               bool primaryKeyArg, bool uniqueArg) {
+
   name = nameArg;
   type = typeArg;
   relatedColumn = nullptr;
-  primaryKey = false;
+  primaryKey = primaryKeyArg;
   foreignKey = false;
-  unique = false;
-  nullable = true;
-  autoIncrement = false;
+  unique = uniqueArg;
+  nullable = nullableArg;
 }
 
 void Column::println() {
@@ -24,3 +25,7 @@ std::string Column::getName() { return name; }
 Type *Column::getType() { return type; }
 
 bool Column::isNullable() { return nullable; }
+
+bool Column::isPrimaryKey() { return primaryKey; }
+
+bool Column::isUnique() { return unique; }

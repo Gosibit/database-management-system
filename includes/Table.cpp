@@ -23,26 +23,10 @@ Table *Table::getTable(std::string name) {
   return Table::tables[name];
 };
 
-void Table::println() {
-  fmt::print("Table: {}, ", name);
-  printColumns();
-  fmt::println("");
-}
+std::map<std::string, Column *> Table::getColumns() { return columns; }
 
-void Table::printTables() {
-  //  fmt::println("Printing tables...");
-  //  if (Table::tables.empty()) {
-  //    fmt::println("No tables left");
-  //  }
-  //  for (auto &table : Table::tables) {
-  //    table.second->println();
-  //  }
-}
-
-void Table::printColumns() {
-  for (auto &column : columns) {
-    column.second->println();
-  }
+std::map<std::string, std::map<Column *, fieldValueType>> Table::getRows() {
+  return rows;
 }
 
 Column *Table::getColumn(std::string columnName) {
@@ -54,17 +38,124 @@ Column *Table::getColumn(std::string columnName) {
 
 void Table::renameTo(std::string newName) { name = newName; }
 
-void Table::addColumn(std::string columnName, std::string columnType) {
+void Table::addColumn(std::string columnName, std::string columnType,
+                      bool nullable, bool primaryKey, bool unique) {
 
   auto *type = Type::getType(columnType);
 
-  auto *column = new Column(columnName, type);
+  if (nullable && primaryKey) {
+    throw std::runtime_error("Column " + columnName +
+                             " can't be nullable and primary key, consider "
+                             "adding NOT_NULL constraint");
+  }
+
+  auto *column = new Column(columnName, type, nullable, primaryKey, unique);
   columns.insert(std::make_pair(columnName, column));
 }
 
 void Table::dropColumn(std::string columnName) {
   delete columns.at(columnName);
   columns.erase(columnName);
+}
+
+std::vector<std::string> Table::getColumnNames() {
+  auto columnNames = std::vector<std::string>();
+  for (auto &column : columns) {
+    columnNames.push_back(column.first);
+  }
+  return columnNames;
+};
+
+void Table::insertInto(
+    std::vector<std::pair<std::string, std::string>> columnNamesAndValues) {
+  lastId++;
+
+  auto columnNames = std::vector<std::string>();
+  for (auto &pair : columnNamesAndValues) {
+    columnNames.push_back(pair.first);
+  }
+
+  // check if all non nullable columns have provided value in
+  // columnNamesAndValues
+  for (auto &column : columns) {
+    if (std::find(columnNames.begin(), columnNames.end(), column.first) ==
+        columnNames.end()) {
+      if (!column.second->isNullable()) {
+        lastId--;
+        throw std::runtime_error("Column " + column.first + " is not nullable");
+      } else {
+        rows[std::to_string(lastId)][column.second] = nullptr;
+      }
+    }
+  }
+
+  setValues(columnNamesAndValues, std::to_string(lastId));
+}
+
+void Table::deleteFrom(
+    std::vector<ArgumentsForComparing> argumentsForComparing) {
+  auto meetingConditionsRowIds =
+      getIdRowsMatchingConditions(argumentsForComparing);
+
+  for (auto &rowId : meetingConditionsRowIds) {
+    rows.erase(rowId);
+  }
+}
+
+void Table::update(
+    std::vector<std::pair<std::string, std::string>> columnNamesAndValues,
+    std::vector<ArgumentsForComparing> argumentsForComparing) {
+  auto meetingConditionsRowIds =
+      getIdRowsMatchingConditions(argumentsForComparing);
+
+  for (auto &rowId : meetingConditionsRowIds) {
+    setValues(columnNamesAndValues, rowId);
+  }
+}
+
+void Table::setValues(
+    std::vector<std::pair<std::string, std::string>> columnNamesAndValues,
+    std::string rowId) {
+  for (auto &pair : columnNamesAndValues) {
+    auto columnName = pair.first;
+    auto value = pair.second;
+    validateNewValue(columnName, value);
+
+    auto *column = getColumn(columnName);
+    auto *type = column->getType();
+
+    rows[rowId][column] = type->parseValue(value);
+  }
+}
+
+void Table::validateNewValue(std::string columnName, std::string value) {
+
+  auto *column = getColumn(columnName);
+  auto *type = column->getType();
+
+  if (column->isUnique() || column->isPrimaryKey()) {
+    for (auto &row : rows) {
+      if (value != "NULL" && fieldToString(row.second[column]) == value) {
+        throw std::runtime_error("Value " + value + " is not unique");
+      }
+    }
+  }
+
+  if (value == "NULL" && !column->isNullable()) {
+    throw std::runtime_error("Column " + columnName + " is not nullable");
+  } else if (value != "NULL" && !type->isValueValid(value)) {
+    throw std::runtime_error("Value " + value + " is not valid for type " +
+                             type->getName());
+  }
+}
+
+void Table::select(std::vector<std::string> columnNames,
+                   std::vector<ArgumentsForComparing> argumentsForComparing) {
+
+  auto meetingConditionsRowIds =
+      getIdRowsMatchingConditions(argumentsForComparing);
+
+  drawTable(columnNames, meetingConditionsRowIds);
 }
 
 void Table::drawTable(std::vector<std::string> columnNames,
@@ -129,43 +220,6 @@ void Table::drawTable(std::vector<std::string> columnNames,
   }
   fmt::println("{}", horizontalLine);
 }
-void Table::insertInto(
-    std::vector<std::pair<std::string, std::string>> columnNamesAndValues) {
-  lastId++;
-
-  auto columnNames = std::vector<std::string>();
-  for (auto &pair : columnNamesAndValues) {
-    columnNames.push_back(pair.first);
-  }
-
-  for (auto &column : columns) {
-    if (std::find(columnNames.begin(), columnNames.end(), column.first) ==
-        columnNames.end()) {
-      if (!column.second->isNullable()) {
-        lastId--;
-        throw std::runtime_error("Column " + column.first + " is not nullable");
-      } else {
-        rows[std::to_string(lastId)][column.second] = nullptr;
-      }
-    }
-  }
-
-  for (auto &pair : columnNamesAndValues) {
-    auto columnName = pair.first;
-    auto value = pair.second;
-
-    auto *column = getColumn(columnName);
-    auto *type = column->getType();
-
-    if (!type->isValueValid(value)) {
-      lastId--;
-      throw std::runtime_error("Value " + value + " is not valid for type " +
-                               type->getName());
-    }
-
-    rows[std::to_string(lastId)][column] = type->parseValue(value);
-  }
-}
 
 std::vector<std::string> Table::getIdRowsMatchingConditions(
     std::vector<ArgumentsForComparing> argumentsForComparing) {
@@ -191,13 +245,6 @@ std::vector<std::string> Table::getIdRowsMatchingConditions(
                                      lastLogicalOperator, actualState);
 
       lastLogicalOperator = argument.getLogicalOperator();
-
-      //      std::visit(
-      //          [operatorArg](auto &&arg1, auto &&arg2) {
-      //            fmt::println("{}{}{} | {}", arg1, operatorArg, arg2,
-      //                         compare(arg1, operatorArg, arg2));
-      //          },
-      //          valueFromColumn, valueArg);
     }
 
     if (actualState) {
@@ -206,13 +253,4 @@ std::vector<std::string> Table::getIdRowsMatchingConditions(
   }
   fmt::println("meetingConditionsRowIds: {}", meetingConditionsRowIds);
   return meetingConditionsRowIds;
-}
-
-void Table::select(std::vector<std::string> columnNames,
-                   std::vector<ArgumentsForComparing> argumentsForComparing) {
-
-  auto meetingConditionsRowIds =
-      getIdRowsMatchingConditions(argumentsForComparing);
-
-  drawTable(columnNames, meetingConditionsRowIds);
 }

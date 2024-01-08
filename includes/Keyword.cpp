@@ -8,9 +8,10 @@
 #include <string>
 #include <vector>
 
+#include "ArgumentsForComparing.h"
+#include "Table.h"
 #include "stringUtilities.h"
 #include "tokenizer.h"
-
 std::vector<std::string> Keyword::supportedKeywords = {
     "ALTER_TABLE", "CREATE_TABLE", "ADD_COLUMN", "DROP_COLUMN",
     "INSERT",      "SELECT",       "FROM",       "WHERE"};
@@ -103,4 +104,47 @@ bool Keyword::isKeywordCompatible(std::string keyword) {
   }
 
   return false;
+}
+
+std::vector<ArgumentsForComparing>
+Keyword::parseWhereArguments(std::string whereArguments, Table *table) {
+  auto argumentsToCompare = std::vector<ArgumentsForComparing>();
+  auto whereArgumentsSplitted =
+      splitBySpace(whereArguments); // {col1, =, 1, AND, col2, =, 'a'}
+
+  for (int i = 0; i < whereArgumentsSplitted.size(); i += 3) {
+    auto columnName = whereArgumentsSplitted[i];
+    auto operatorArg = whereArgumentsSplitted[i + 1];
+
+    if (operatorArg == "IS_NULL" || operatorArg == "IS_NOT_NULL") {
+      auto logicalOperator = whereArgumentsSplitted[i + 2];
+      argumentsToCompare.push_back(
+          ArgumentsForComparing("", operatorArg, columnName, logicalOperator));
+      continue;
+    }
+
+    auto valueArg = whereArgumentsSplitted[i + 2];
+
+    auto logicalOperator = std::string();
+    if (whereArgumentsSplitted[i + 3] == "AND" ||
+        whereArgumentsSplitted[i + 3] == "OR") {
+      logicalOperator = whereArgumentsSplitted[i + 3];
+      i++;
+    } else {
+      logicalOperator = "";
+    }
+
+    auto *column = table->getColumn(columnName);
+    auto *type = column->getType();
+    if (!type->isValueValid(valueArg)) {
+      throw std::runtime_error("Value " + valueArg + " is not valid for type " +
+                               type->getName());
+    }
+
+    auto parsedArgValue = column->getType()->parseValue(valueArg);
+
+    argumentsToCompare.push_back(ArgumentsForComparing(
+        parsedArgValue, operatorArg, columnName, logicalOperator));
+  }
+  return argumentsToCompare;
 }

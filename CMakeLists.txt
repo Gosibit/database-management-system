@@ -16,6 +16,10 @@ add_executable(cpp-db-mvp main.cpp includes/Table.cpp includes/tokenizer.cpp inc
         includes/ArgumentsForComparing.h
         includes/compare.cpp
         includes/compare.h
+        includes/Dump.cpp
+        includes/Dump.h
+        includes/queryProcessor.cpp
+        includes/queryProcessor.h
 )
 
 

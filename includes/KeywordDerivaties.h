@@ -32,3 +32,27 @@ public:
   Select();
   void process();
 };
+
+class Update : public Keyword {
+public:
+  Update();
+  void process();
+};
+
+class DeleteFrom : public Keyword {
+public:
+  DeleteFrom();
+  void process();
+};
+
+class DumpRestore : public Keyword {
+public:
+  DumpRestore();
+  void process();
+};
+
+class DumpCreate : public Keyword {
+public:
+  DumpCreate();
+  void process();
+};

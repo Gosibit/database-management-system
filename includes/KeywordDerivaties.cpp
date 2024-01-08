@@ -6,6 +6,7 @@
 #include <fmt/ranges.h>
 
 #include "ArgumentsForComparing.h"
+#include "Dump.h"
 #include "Table.h"
 #include "stringUtilities.h"
 #include "tokenizer.h"
@@ -23,12 +24,20 @@ void AlterTable::process() {
     auto interactionName = interaction.first;
     auto interactionContent = interaction.second;
 
+    auto args = splitBySpace(interactionContent);
+    auto unique =
+        std::find(args.begin() + 1, args.end(), "UNIQUE") != args.end();
+    auto nullable =
+        std::find(args.begin() + 1, args.end(), "NOT_NULL") == args.end();
+    auto primaryKey =
+        std::find(args.begin() + 1, args.end(), "PRIMARY_KEY") != args.end();
+
     if (interactionName == "ADD_COLUMN") {
       auto args = splitBySpace(interactionContent); // {col1, int}
       auto columnName = trim(args[0]);
       auto columnType = trim(args[1]);
 
-      table->addColumn(columnName, columnType);
+      table->addColumn(columnName, columnType, nullable, primaryKey, unique);
     }
 
     if (interactionName == "RENAME_TO") {
@@ -40,9 +49,16 @@ void AlterTable::process() {
       interactionContent = trim(interactionContent);
       table->dropColumn(interactionContent);
     }
-  }
 
-  Table::printTables();
+    if (interactionName == "ALTER_COLUMN") {
+      auto args = splitBySpace(interactionContent); // {col1, int}
+      auto columnName = trim(args[0]);
+      auto columnType = trim(args[1]);
+
+      table->dropColumn(columnName);
+      table->addColumn(columnName, columnType, nullable, primaryKey, unique);
+    }
+  }
 }
 
 CreateTable::CreateTable() : Keyword("CREATE_TABLE", {}) {
@@ -66,10 +82,18 @@ void CreateTable::process() {
     auto columnName = trim(columnArgTokenized[0]); // col1
     auto columnType = trim(columnArgTokenized[1]); // int
 
-    table->addColumn(columnName, columnType);
-  }
+    auto unique =
+        std::find(columnArgTokenized.begin() + 1, columnArgTokenized.end(),
+                  "UNIQUE") != columnArgTokenized.end();
+    auto nullable =
+        std::find(columnArgTokenized.begin() + 1, columnArgTokenized.end(),
+                  "NOT_NULL") == columnArgTokenized.end();
+    auto primaryKey =
+        std::find(columnArgTokenized.begin() + 1, columnArgTokenized.end(),
+                  "PRIMARY_KEY") != columnArgTokenized.end();
 
-  Table::printTables();
+    table->addColumn(columnName, columnType, nullable, primaryKey, unique);
+  }
 }
 
 DropTable::DropTable() : Keyword("DROP_TABLE", {}) {
@@ -82,7 +106,6 @@ void DropTable::process() {
   auto *table = Table::getTable(tableName);
   delete table;
   Table::tables.erase(tableName);
-  Table::printTables();
 }
 
 InsertInto::InsertInto() : Keyword("INSERT_INTO", {"VALUES"}) {
@@ -90,7 +113,6 @@ InsertInto::InsertInto() : Keyword("INSERT_INTO", {"VALUES"}) {
 };
 
 void InsertInto::process() {
-  // INSERT_INTO tab1 (col1, col2, col3) VALUES (1, 'a', 2);
   auto trimmedKeywordArgs = trim(keywordArguments);
   auto tableName = getPartBeforeDelimiter(trimmedKeywordArgs, "(");
 
@@ -122,58 +144,112 @@ void InsertInto::process() {
   }
 
   table->insertInto(insertArguments);
-  Table::printTables();
 }
 
 Select::Select() : Keyword("SELECT", {"FROM", "WHERE"}) {
   Keyword::keywords.insert(std::make_pair("SELECT", this));
 };
+
 void Select::process() {
 
   if (foundInteractions.find("FROM") == foundInteractions.end()) {
     throw std::runtime_error("Missing `FROM` statement");
   }
-
-  auto trimmedKeywordArgs = trim(keywordArguments);
-  auto columnNames = splitByComma(trimmedKeywordArgs);
-
   auto tableName = trim(foundInteractions["FROM"]);
   auto *table = Table::getTable(tableName);
+
+  auto trimmedKeywordArgs = trim(keywordArguments);
+
+  auto columnNames = std::vector<std::string>();
+  if (std::find(trimmedKeywordArgs.begin(), trimmedKeywordArgs.end(), '*') !=
+      trimmedKeywordArgs.end()) {
+    columnNames = table->getColumnNames();
+  } else
+    columnNames = splitByComma(trimmedKeywordArgs);
 
   auto argumentsToCompare = std::vector<ArgumentsForComparing>();
 
   if (foundInteractions.find("WHERE") != foundInteractions.end()) {
-    auto whereArguments = foundInteractions["WHERE"]; // col1 = 1 AND col2 = 'a'
-    auto whereArgumentsSplitted =
-        splitBySpace(whereArguments); // {col1, =, 1, AND, col2, =, 'a'}
-
-    for (int i = 0; i < whereArgumentsSplitted.size(); i += 3) {
-      auto valueArg = whereArgumentsSplitted[i + 2];
-      auto operatorArg = whereArgumentsSplitted[i + 1];
-      auto columnName = whereArgumentsSplitted[i];
-      auto logicalOperator = std::string();
-      if (whereArgumentsSplitted[i + 3] == "AND" ||
-          whereArgumentsSplitted[i + 3] == "OR") {
-        logicalOperator = whereArgumentsSplitted[i + 3];
-        i++;
-      } else {
-        logicalOperator = "AND";
-      }
-
-      auto *column = table->getColumn(columnName);
-      auto *type = column->getType();
-      fmt::println("valueArg: {}", valueArg);
-      if (!type->isValueValid(valueArg)) {
-        throw std::runtime_error("Value " + valueArg +
-                                 " is not valid for type " + type->getName());
-      }
-
-      auto parsedArgValue = column->getType()->parseValue(valueArg);
-
-      argumentsToCompare.push_back(ArgumentsForComparing(
-          parsedArgValue, operatorArg, columnName, logicalOperator));
-    }
+    auto whereArguments = foundInteractions["WHERE"];
+    argumentsToCompare = this->parseWhereArguments(whereArguments, table);
   }
 
   table->select(columnNames, argumentsToCompare);
+}
+
+Update::Update() : Keyword("UPDATE", {"SET", "WHERE"}) {
+  Keyword::keywords.insert(std::make_pair("UPDATE", this));
+};
+
+void Update::process() {
+  auto tableName = trim(keywordArguments);
+  auto *table = Table::getTable(tableName);
+
+  auto setArguments = foundInteractions["SET"]; // col1 = 1, col2 = 'a'
+  auto setArgumentsSplitted = splitByComma(setArguments);
+
+  auto columnNameAndValues = std::vector<std::pair<std::string, std::string>>();
+
+  for (auto &setArgument : setArgumentsSplitted) {
+    auto setArgumentSplittedBySpace = splitBySpace(setArgument); // {col1, =, 1}
+    auto columnName = setArgumentSplittedBySpace[0];
+    auto valueArg = setArgumentSplittedBySpace[2];
+
+    columnNameAndValues.push_back(std::make_pair(columnName, valueArg));
+  }
+
+  auto argumentsForComparing = std::vector<ArgumentsForComparing>();
+
+  if (foundInteractions.find("WHERE") != foundInteractions.end()) {
+    auto whereArguments = foundInteractions["WHERE"];
+    argumentsForComparing = this->parseWhereArguments(whereArguments, table);
+  }
+
+  table->update(columnNameAndValues, argumentsForComparing);
+}
+
+DeleteFrom::DeleteFrom() : Keyword("DELETE_FROM", {"WHERE"}) {
+  Keyword::keywords.insert(std::make_pair("DELETE_FROM", this));
+};
+
+void DeleteFrom::process() {
+  auto tableName = trim(keywordArguments);
+  auto *table = Table::getTable(tableName);
+
+  auto argumentsForComparing = std::vector<ArgumentsForComparing>();
+
+  if (foundInteractions.find("WHERE") != foundInteractions.end()) {
+    auto whereArguments = foundInteractions["WHERE"];
+    argumentsForComparing = this->parseWhereArguments(whereArguments, table);
+  }
+
+  table->deleteFrom(argumentsForComparing);
+}
+
+DumpRestore::DumpRestore() : Keyword("DUMP_RESTORE", {"<"}) {
+  Keyword::keywords.insert(std::make_pair("DUMP_RESTORE", this));
+};
+
+void DumpRestore::process() {
+  auto option = trim(keywordArguments);
+  if (option == "DATABASE") {
+    auto path = trim(foundInteractions["<"]);
+    Dump::restore(path);
+  } else {
+    throw std::runtime_error("Invalid option");
+  }
+}
+
+DumpCreate::DumpCreate() : Keyword("DUMP_CREATE", {">"}) {
+  Keyword::keywords.insert(std::make_pair("DUMP_CREATE", this));
+};
+
+void DumpCreate::process() {
+  auto option = trim(keywordArguments);
+  if (option == "DATABASE") {
+    auto path = trim(foundInteractions[">"]);
+    Dump::dump(path);
+  } else {
+    throw std::runtime_error("Invalid option");
+  }
 }

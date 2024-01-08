@@ -62,7 +62,8 @@ boolean::boolean() : Type("boolean") {
 }
 
 bool boolean::isValueValid(std::string value) {
-  if (value == "true" || value == "false")
+  if (value == "true" || value == "false" || value == "0" || value == "1")
     return true;
-  return false;
+  else
+    return false;
 }

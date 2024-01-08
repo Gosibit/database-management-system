@@ -17,16 +17,24 @@ Type *Type::getType(std::string name) {
 }
 
 fieldValueType Type::parseValue(std::string value) {
+  if (value == "NULL")
+    return nullptr;
+
   if (name == "int") {
     return std::stoi(value);
   } else if (name == "float") {
     return std::stof(value);
   } else if (name == "double") {
     return std::stod(value);
-  } else if (name == "boolean") {
-    return value == "true";
   } else if (name == "varchar") {
     return value;
+  } else if (name == "boolean") {
+    if (value == "true")
+      return true;
+    else if (value == "false")
+      return false;
+    else
+      return std::stoi(value);
   } else {
     throw std::runtime_error("Type " + name + " not found");
   }

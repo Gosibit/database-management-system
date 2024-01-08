@@ -11,13 +11,14 @@ class Column {
   bool foreignKey;
   bool unique;
   bool nullable;
-  bool autoIncrement;
-
 
 public:
-  Column(std::string nameArg, Type *typeArg);
+  Column(std::string nameArg, Type *typeArg, bool nullableArg,
+         bool primaryKeyArg, bool uniqueArg);
   void println();
   std::string getName();
   Type *getType();
   bool isNullable();
+  bool isPrimaryKey();
+  bool isUnique();
 };

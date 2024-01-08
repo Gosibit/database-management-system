@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ArgumentsForComparing.h"
+#include "Table.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -22,6 +24,10 @@ public:
   void println();
   bool isKeywordCompatible(std::string keyword);
   static void resetKeywordsData();
+
+  std::vector<ArgumentsForComparing>
+  parseWhereArguments(std::string whereArguments, Table *table);
+  
   std::string getName();
   void prepare(std::string queryArg);
   virtual void process();
