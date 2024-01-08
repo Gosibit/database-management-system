@@ -40,7 +40,11 @@ void Dump::dump(std::string path) {
 
       for (auto &column : columns) {
         auto value = row.second[column.second];
-        insertIntoQuery += fieldToString(value) + ", ";
+        if (std::holds_alternative<std::string>(value))
+          insertIntoQuery += "'" + std::get<std::string>(value) + "', ";
+        else {
+          insertIntoQuery += fieldToString(value) + ", ";
+        }
       }
       insertIntoQuery = insertIntoQuery.substr(0, insertIntoQuery.size() - 2);
       insertIntoQuery += ");";
@@ -56,7 +60,7 @@ void Dump::restore(std::string path) {
     delete table.second;
   }
   Table::tables.clear();
-  
+
   std::ifstream dumpFile;
   dumpFile.open("../" + path);
   std::string line;

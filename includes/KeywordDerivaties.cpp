@@ -8,6 +8,7 @@
 #include "ArgumentsForComparing.h"
 #include "Dump.h"
 #include "Table.h"
+#include "queryProcessor.h"
 #include "stringUtilities.h"
 #include "tokenizer.h"
 
@@ -125,9 +126,9 @@ void InsertInto::process() {
   }
 
   auto valuesPart = foundInteractions["VALUES"];
-  auto valuesPartReadyToSplit = removeBrackets(trim(valuesPart));
+  valuesPart = removeBrackets(trim(valuesPart));
 
-  auto valuesVector = splitByComma(valuesPartReadyToSplit);
+  auto valuesVector = splitByComma(valuesPart);
 
   if (columnNamesVector.size() != valuesVector.size()) {
     throw std::runtime_error("Number of columns and values does not match");
@@ -185,7 +186,7 @@ void Update::process() {
   auto tableName = trim(keywordArguments);
   auto *table = Table::getTable(tableName);
 
-  auto setArguments = foundInteractions["SET"]; // col1 = 1, col2 = 'a'
+  auto setArguments = foundInteractions["SET"];
   auto setArgumentsSplitted = splitByComma(setArguments);
 
   auto columnNameAndValues = std::vector<std::pair<std::string, std::string>>();

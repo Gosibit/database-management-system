@@ -2,6 +2,7 @@
 #include "./Table.h"
 
 #include "compare.h"
+#include "queryProcessor.h"
 #include "stringUtilities.h"
 #include <fmt/core.h>
 #include <fmt/ranges.h>
@@ -119,12 +120,18 @@ void Table::setValues(
   for (auto &pair : columnNamesAndValues) {
     auto columnName = pair.first;
     auto value = pair.second;
+
     validateNewValue(columnName, value);
 
     auto *column = getColumn(columnName);
     auto *type = column->getType();
 
-    rows[rowId][column] = type->parseValue(value);
+    auto parsedValue = type->parseValue(value);
+    if (std::holds_alternative<std::string>(parsedValue)) {
+      parsedValue =
+          replacePlaceholdersWithValues(std::get<std::string>(parsedValue));
+    }
+    rows[rowId][column] = parsedValue;
   }
 }
 
@@ -133,9 +140,12 @@ void Table::validateNewValue(std::string columnName, std::string value) {
   auto *column = getColumn(columnName);
   auto *type = column->getType();
 
+  auto replacedValue = replacePlaceholdersWithValues(value);
+
   if (column->isUnique() || column->isPrimaryKey()) {
     for (auto &row : rows) {
-      if (value != "NULL" && fieldToString(row.second[column]) == value) {
+      if (value != "NULL" &&
+          fieldToString(row.second[column]) == replacedValue) {
         throw std::runtime_error("Value " + value + " is not unique");
       }
     }
@@ -143,7 +153,7 @@ void Table::validateNewValue(std::string columnName, std::string value) {
 
   if (value == "NULL" && !column->isNullable()) {
     throw std::runtime_error("Column " + columnName + " is not nullable");
-  } else if (value != "NULL" && !type->isValueValid(value)) {
+  } else if (value != "NULL" && !type->isValueValid(replacedValue)) {
     throw std::runtime_error("Value " + value + " is not valid for type " +
                              type->getName());
   }
@@ -218,6 +228,12 @@ void Table::drawTable(std::vector<std::string> columnNames,
 
     fmt::println("");
   }
+  if (rowIdsToSelect.size() == 0) {
+    auto supplyStr = std::string("| ");
+    supplyStr.append(horizontalLine.size() - 4, ' ');
+    supplyStr += " |";
+    fmt::println("{}", supplyStr);
+  }
   fmt::println("{}", horizontalLine);
 }
 
@@ -239,6 +255,10 @@ std::vector<std::string> Table::getIdRowsMatchingConditions(
       auto valueFromColumn = row.second[column];
       auto operatorArg = argument.getOperatorArg();
       auto valueArg = argument.getValueArg();
+
+      if (std::holds_alternative<std::string>(valueArg))
+        valueArg =
+            replacePlaceholdersWithValues(std::get<std::string>(valueArg));
 
       actualState =
           compareWithLogicalOperator(valueFromColumn, operatorArg, valueArg,

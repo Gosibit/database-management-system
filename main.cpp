@@ -9,10 +9,15 @@ int main() {
   //  while (true) {
   auto input = std::string();
 
-  input = "DUMP_RESTORE DATABASE < dumps/dump.txt;"
-          "SELECT * FROM tab1";
+  input = "CREATE_TABLE tab1 (col1 varchar, col2 varchar);"
+          "INSERT_INTO tab1 (col1, col2) VALUES ('val1', 'test;2;');"
+          "INSERT_INTO tab1 (col1, col2) VALUES ('val2', 'test;2;');"
+          "SELECT * FROM tab1 WHERE col1 = 'val2';"
+          "SELECT * FROM tab1;";
 
-  //    std::getline(std::cin, input);
+  input = replaceValuesWithPlaceholders(input);
+  input = removeAllOccurencies(input, '\'');
+  fmt::println("input: {}", input);
   auto multipleQueriesSplitted = splitByQueries(input);
 
   for (auto &query : multipleQueriesSplitted) {
