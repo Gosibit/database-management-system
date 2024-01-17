@@ -6,31 +6,31 @@
 class AlterTable : public Keyword {
 public:
   AlterTable();
-  void process();
+  void process() override;
 };
 
 class CreateTable : public Keyword {
 public:
   CreateTable();
-  void process();
+  void process() override;
 };
 
 class DropTable : public Keyword {
 public:
   DropTable();
-  void process();
+  void process() override;
 };
 
 class InsertInto : public Keyword {
 public:
   InsertInto();
-  void process();
+  void process() override;
 };
 
 class Select : public Keyword {
 public:
   Select();
-  void process();
+  void process() override;
 };
 
 class Update : public Keyword {
