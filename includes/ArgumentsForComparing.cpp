@@ -11,9 +11,11 @@ ArgumentsForComparing::ArgumentsForComparing(fieldValueType valueArg,
   this->logicalOperator = logicalOperator;
 }
 
-fieldValueType ArgumentsForComparing::getValueArg() { return valueArg; }
-std::string ArgumentsForComparing::getOperatorArg() { return operatorArg; }
-std::string ArgumentsForComparing::getColumnName() { return columnName; }
-std::string ArgumentsForComparing::getLogicalOperator() {
+fieldValueType ArgumentsForComparing::getValueArg() const { return valueArg; }
+std::string ArgumentsForComparing::getOperatorArg() const {
+  return operatorArg;
+}
+std::string ArgumentsForComparing::getColumnName() const { return columnName; }
+std::string ArgumentsForComparing::getLogicalOperator() const {
   return logicalOperator;
 }

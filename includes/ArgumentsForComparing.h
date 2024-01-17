@@ -12,8 +12,8 @@ class ArgumentsForComparing {
 public:
   ArgumentsForComparing(fieldValueType valueArg, std::string operatorArg,
                         std::string columnName, std::string logicalOperator);
-  fieldValueType getValueArg();
-  std::string getOperatorArg();
-  std::string getColumnName();
-  std::string getLogicalOperator();
+  fieldValueType getValueArg() const;
+  std::string getOperatorArg() const;
+  std::string getColumnName() const;
+  std::string getLogicalOperator() const;
 };
