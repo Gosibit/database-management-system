@@ -36,23 +36,23 @@ public:
 class Update : public Keyword {
 public:
   Update();
-  void process();
+  void process() override;
 };
 
 class DeleteFrom : public Keyword {
 public:
   DeleteFrom();
-  void process();
+  void process() override;
 };
 
 class DumpRestore : public Keyword {
 public:
   DumpRestore();
-  void process();
+  void process() override;
 };
 
 class DumpCreate : public Keyword {
 public:
   DumpCreate();
-  void process();
+  void process() override;
 };
