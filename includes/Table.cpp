@@ -1,4 +1,3 @@
-#pragma once
 #include "./Table.h"
 
 #include "compare.h"

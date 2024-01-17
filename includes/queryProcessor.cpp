@@ -1,4 +1,3 @@
-#pragma once
 #include "queryProcessor.h"
 #include "Keyword.h"
 #include "tokenizer.h"

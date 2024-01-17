@@ -1,5 +1,3 @@
-#pragma once
-
 #include "TypeDerivaties.h"
 #include <fmt/core.h>
 #include <iostream>

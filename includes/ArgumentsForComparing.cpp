@@ -1,4 +1,3 @@
-#pragma once
 #include "ArgumentsForComparing.h"
 
 ArgumentsForComparing::ArgumentsForComparing(const fieldValueType &valueArg,

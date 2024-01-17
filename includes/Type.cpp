@@ -1,4 +1,3 @@
-#pragma once
 #include "Type.h"
 #include "aliases.h"
 #include <string>

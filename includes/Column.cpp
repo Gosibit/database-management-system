@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Column.h"
 #include "Type.h"
 #include <fmt/core.h>

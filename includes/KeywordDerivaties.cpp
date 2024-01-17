@@ -1,5 +1,3 @@
-#pragma once
-
 #include "KeywordDerivaties.h"
 
 #include <fmt/core.h>

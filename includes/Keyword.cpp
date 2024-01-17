@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Keyword.h"
 
 #include <fmt/core.h>

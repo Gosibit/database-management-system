@@ -1,4 +1,3 @@
-#pragma once
 #include "stringUtilities.h"
 
 #include "tokenizer.h"
