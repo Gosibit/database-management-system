@@ -15,6 +15,7 @@ class Column {
 public:
   Column(const std::string &nameArg, Type *typeArg, const bool &nullableArg,
          const bool &primaryKeyArg, const bool &uniqueArg);
+  
   void println();
   std::string getName();
   Type *getType();

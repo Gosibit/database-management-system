@@ -14,10 +14,13 @@ class Table {
   int lastId;
 
 public:
+  Table(const std::string &nameArg);
+
   static std::map<std::string, Table *> tables;
   static Table *getTable(std::string name);
+
   std::map<std::string, std::map<Column *, fieldValueType>> getRows();
-  Table(const std::string &nameArg);
+  
   std::map<std::string, Column *> getColumns();
   void renameTo(std::string newName);
 

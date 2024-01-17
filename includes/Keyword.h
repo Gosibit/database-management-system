@@ -18,13 +18,15 @@ protected:
   std::map<std::string, std::string> foundInteractions;
 
 public:
-  static std::vector<std::string> supportedKeywords;
-  static std::map<std::string, Keyword *> keywords; // list of all keywords
   Keyword(const std::string &nameArg,
           const std::vector<std::string> &compatibleKeywordsArg);
-  void println();
-  bool isKeywordCompatible(const std::string &keyword);
+
+  static std::vector<std::string> supportedKeywords;
+  static std::map<std::string, Keyword *> keywords; // list of all keywords
   static void resetKeywordsData();
+
+  bool isKeywordCompatible(const std::string &keyword);
+  void println();
 
   std::vector<ArgumentsForComparing>
   parseWhereArguments(const std::string &whereArguments, Table *table);
