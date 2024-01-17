@@ -6,16 +6,10 @@
 
 Column::Column(const std::string &nameArg, Type *typeArg,
                const bool &nullableArg, const bool &primaryKeyArg,
-               const bool &uniqueArg) {
-
-  name = nameArg;
-  type = typeArg;
-  relatedColumn = nullptr;
-  primaryKey = primaryKeyArg;
-  foreignKey = false;
-  unique = uniqueArg;
-  nullable = nullableArg;
-}
+               const bool &uniqueArg)
+    : name(nameArg), type(typeArg), nullable(nullableArg),
+      primaryKey(primaryKeyArg), unique(uniqueArg), foreignKey(false),
+      relatedColumn(nullptr) {}
 
 void Column::println() {
   fmt::print("Column: {}, Type: {}", name, type->getName());
