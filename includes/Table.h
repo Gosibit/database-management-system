@@ -28,30 +28,32 @@ public:
 
   std::vector<std::string> getColumnNames();
 
-  void select(std::vector<std::string> columnNames,
-              std::vector<ArgumentsForComparing> argumentsForComparing);
+  void select(const std::vector<std::string> &columnNames,
+              const std::vector<ArgumentsForComparing> &argumentsForComparing);
 
   void insertInto(
-      std::vector<std::pair<std::string, std::string>> columnNamesAndValues);
+      std::vector<std::pair<std::string, std::string>> &columnNamesAndValues);
 
-  void deleteFrom(std::vector<ArgumentsForComparing> argumentsForComparing);
+  void deleteFrom(std::vector<ArgumentsForComparing> &argumentsForComparing);
 
-  void validateNewValue(std::string columnName, std::string value);
+  void validateNewValue(const std::string &columnName,
+                        const std::string &value);
 
   void
-  update(std::vector<std::pair<std::string, std::string>> columnNamesAndValues,
-         std::vector<ArgumentsForComparing> argumentsForComparing);
+  update(std::vector<std::pair<std::string, std::string>> &columnNamesAndValues,
+         std::vector<ArgumentsForComparing> &argumentsForComparing);
 
   void setValues(
-      std::vector<std::pair<std::string, std::string>> columnNamesAndValues,
+      std::vector<std::pair<std::string, std::string>> &columnNamesAndValues,
       std::string rowId);
 
   void printColumns();
 
-  void drawTable(std::vector<std::string> columnNames,
-                 std::vector<std::string> rowIdsToSelect);
+  void drawTable(const std::vector<std::string> &columnNames,
+                 const std::vector<std::string> &rowIdsToSelect);
 
   std::vector<std::string> getIdRowsMatchingConditions(
-      std::vector<ArgumentsForComparing> argumentsForComparing);
+      const std::vector<ArgumentsForComparing> &argumentsForComparing);
+
   Column *getColumn(std::string columnName);
 };

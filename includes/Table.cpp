@@ -68,7 +68,7 @@ std::vector<std::string> Table::getColumnNames() {
 };
 
 void Table::insertInto(
-    std::vector<std::pair<std::string, std::string>> columnNamesAndValues) {
+    std::vector<std::pair<std::string, std::string>> &columnNamesAndValues) {
   lastId++;
 
   auto columnNames = std::vector<std::string>();
@@ -94,7 +94,7 @@ void Table::insertInto(
 }
 
 void Table::deleteFrom(
-    std::vector<ArgumentsForComparing> argumentsForComparing) {
+    std::vector<ArgumentsForComparing> &argumentsForComparing) {
   auto meetingConditionsRowIds =
       getIdRowsMatchingConditions(argumentsForComparing);
 
@@ -104,8 +104,8 @@ void Table::deleteFrom(
 }
 
 void Table::update(
-    std::vector<std::pair<std::string, std::string>> columnNamesAndValues,
-    std::vector<ArgumentsForComparing> argumentsForComparing) {
+    std::vector<std::pair<std::string, std::string>> &columnNamesAndValues,
+    std::vector<ArgumentsForComparing> &argumentsForComparing) {
   auto meetingConditionsRowIds =
       getIdRowsMatchingConditions(argumentsForComparing);
 
@@ -115,11 +115,10 @@ void Table::update(
 }
 
 void Table::setValues(
-    std::vector<std::pair<std::string, std::string>> columnNamesAndValues,
+    std::vector<std::pair<std::string, std::string>> &columnNamesAndValues,
     std::string rowId) {
   for (auto &pair : columnNamesAndValues) {
-    auto columnName = pair.first;
-    auto value = pair.second;
+    auto [columnName, value] = pair;
 
     validateNewValue(columnName, value);
 
@@ -135,7 +134,8 @@ void Table::setValues(
   }
 }
 
-void Table::validateNewValue(std::string columnName, std::string value) {
+void Table::validateNewValue(const std::string &columnName,
+                             const std::string &value) {
 
   auto *column = getColumn(columnName);
   auto *type = column->getType();
@@ -159,8 +159,9 @@ void Table::validateNewValue(std::string columnName, std::string value) {
   }
 }
 
-void Table::select(std::vector<std::string> columnNames,
-                   std::vector<ArgumentsForComparing> argumentsForComparing) {
+void Table::select(
+    const std::vector<std::string> &columnNames,
+    const std::vector<ArgumentsForComparing> &argumentsForComparing) {
 
   auto meetingConditionsRowIds =
       getIdRowsMatchingConditions(argumentsForComparing);
@@ -168,8 +169,8 @@ void Table::select(std::vector<std::string> columnNames,
   drawTable(columnNames, meetingConditionsRowIds);
 }
 
-void Table::drawTable(std::vector<std::string> columnNames,
-                      std::vector<std::string> rowIdsToSelect) {
+void Table::drawTable(const std::vector<std::string> &columnNames,
+                      const std::vector<std::string> &rowIdsToSelect) {
   auto longestValueInColumn = std::map<std::string, int>();
 
   for (auto &columnName : columnNames) {
@@ -238,7 +239,7 @@ void Table::drawTable(std::vector<std::string> columnNames,
 }
 
 std::vector<std::string> Table::getIdRowsMatchingConditions(
-    std::vector<ArgumentsForComparing> argumentsForComparing) {
+    const std::vector<ArgumentsForComparing> &argumentsForComparing) {
 
   auto meetingConditionsRowIds = std::vector<std::string>();
 
