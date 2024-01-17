@@ -4,12 +4,9 @@
 ArgumentsForComparing::ArgumentsForComparing(fieldValueType valueArg,
                                              std::string operatorArg,
                                              std::string columnName,
-                                             std::string logicalOperator) {
-  this->valueArg = valueArg;
-  this->operatorArg = operatorArg;
-  this->columnName = columnName;
-  this->logicalOperator = logicalOperator;
-}
+                                             std::string logicalOperator)
+    : valueArg(valueArg), operatorArg(operatorArg), columnName(columnName),
+      logicalOperator(logicalOperator) {}
 
 fieldValueType ArgumentsForComparing::getValueArg() const { return valueArg; }
 std::string ArgumentsForComparing::getOperatorArg() const {
