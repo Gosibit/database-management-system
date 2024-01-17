@@ -146,7 +146,7 @@ void Table::validateNewValue(std::string columnName, std::string value) {
     for (auto &row : rows) {
       if (value != "NULL" &&
           fieldToString(row.second[column]) == replacedValue) {
-        throw std::runtime_error("Value " + value + " is not unique");
+        throw std::runtime_error("Value " + replacedValue + " is not unique");
       }
     }
   }
@@ -154,8 +154,8 @@ void Table::validateNewValue(std::string columnName, std::string value) {
   if (value == "NULL" && !column->isNullable()) {
     throw std::runtime_error("Column " + columnName + " is not nullable");
   } else if (value != "NULL" && !type->isValueValid(replacedValue)) {
-    throw std::runtime_error("Value " + value + " is not valid for type " +
-                             type->getName());
+    throw std::runtime_error("Value " + replacedValue +
+                             " is not valid for type " + type->getName());
   }
 }
 
