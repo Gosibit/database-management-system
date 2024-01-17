@@ -1,10 +1,10 @@
 #pragma once
 #include "ArgumentsForComparing.h"
 
-ArgumentsForComparing::ArgumentsForComparing(fieldValueType valueArg,
-                                             std::string operatorArg,
-                                             std::string columnName,
-                                             std::string logicalOperator)
+ArgumentsForComparing::ArgumentsForComparing(const fieldValueType &valueArg,
+                                             const std::string &operatorArg,
+                                             const std::string &columnName,
+                                             const std::string &logicalOperator)
     : valueArg(valueArg), operatorArg(operatorArg), columnName(columnName),
       logicalOperator(logicalOperator) {}
 

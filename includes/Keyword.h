@@ -20,7 +20,8 @@ protected:
 public:
   static std::vector<std::string> supportedKeywords;
   static std::map<std::string, Keyword *> keywords; // list of all keywords
-  Keyword(std::string nameArg, std::vector<std::string> compatibleKeywordsArg);
+  Keyword(const std::string &nameArg,
+          const std::vector<std::string> &compatibleKeywordsArg);
   void println();
   bool isKeywordCompatible(const std::string &keyword);
   static void resetKeywordsData();

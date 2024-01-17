@@ -4,8 +4,9 @@
 #include "Type.h"
 #include <fmt/core.h>
 
-Column::Column(std::string nameArg, Type *typeArg, bool nullableArg,
-               bool primaryKeyArg, bool uniqueArg) {
+Column::Column(const std::string &nameArg, Type *typeArg,
+               const bool &nullableArg, const bool &primaryKeyArg,
+               const bool &uniqueArg) {
 
   name = nameArg;
   type = typeArg;

@@ -12,7 +12,7 @@
 
 std::map<std::string, Table *> Table::tables = std::map<std::string, Table *>();
 
-Table::Table(std::string nameArg) {
+Table::Table(const std::string &nameArg) {
   name = nameArg;
 
   Table::tables.insert(std::make_pair(name, this));

@@ -4,7 +4,7 @@
 #include <string>
 std::map<std::string, Type *> Type::types = std::map<std::string, Type *>();
 
-Type::Type(std::string nameArg) { name = nameArg; };
+Type::Type(const std::string &nameArg) : name(nameArg) {}
 
 bool Type::isValueValid(const std::string &value) { return true; }
 

@@ -13,8 +13,8 @@ class Column {
   bool nullable;
 
 public:
-  Column(std::string nameArg, Type *typeArg, bool nullableArg,
-         bool primaryKeyArg, bool uniqueArg);
+  Column(const std::string &nameArg, Type *typeArg, const bool &nullableArg,
+         const bool &primaryKeyArg, const bool &uniqueArg);
   void println();
   std::string getName();
   Type *getType();

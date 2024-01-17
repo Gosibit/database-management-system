@@ -17,7 +17,7 @@ public:
   static std::map<std::string, Table *> tables;
   static Table *getTable(std::string name);
   std::map<std::string, std::map<Column *, fieldValueType>> getRows();
-  Table(std::string nameArg);
+  Table(const std::string &nameArg);
   std::map<std::string, Column *> getColumns();
   void renameTo(std::string newName);
 

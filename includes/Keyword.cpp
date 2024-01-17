@@ -17,11 +17,9 @@
 std::map<std::string, Keyword *> Keyword::keywords =
     std::map<std::string, Keyword *>();
 
-Keyword::Keyword(std::string nameArg,
-                 std::vector<std::string> compatibleKeywordsArg) {
-  name = nameArg;
-  compatibleKeywords = compatibleKeywordsArg;
-}
+Keyword::Keyword(const std::string &nameArg,
+                 const std::vector<std::string> &compatibleKeywordsArg)
+    : name(nameArg), compatibleKeywords(compatibleKeywordsArg) {}
 
 void Keyword::process() {
   fmt::println("Keyword::process() triggered but no action defined");
