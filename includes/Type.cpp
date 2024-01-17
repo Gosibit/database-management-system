@@ -6,17 +6,17 @@ std::map<std::string, Type *> Type::types = std::map<std::string, Type *>();
 
 Type::Type(std::string nameArg) { name = nameArg; };
 
-bool Type::isValueValid(std::string value) { return true; }
+bool Type::isValueValid(const std::string &value) { return true; }
 
 std::string Type::getName() { return name; }
 
-Type *Type::getType(std::string name) {
+Type *Type::getType(const std::string &name) {
   if (types.find(name) == types.end())
     throw std::runtime_error("Type " + name + " not found");
   return types[name];
 }
 
-fieldValueType Type::parseValue(std::string value) {
+fieldValueType Type::parseValue(const std::string &value) {
   if (value == "NULL")
     return nullptr;
 
