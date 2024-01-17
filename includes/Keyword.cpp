@@ -13,9 +13,6 @@
 #include "queryProcessor.h"
 #include "stringUtilities.h"
 #include "tokenizer.h"
-std::vector<std::string> Keyword::supportedKeywords = {
-    "ALTER_TABLE", "CREATE_TABLE", "ADD_COLUMN", "DROP_COLUMN",
-    "INSERT",      "SELECT",       "FROM",       "WHERE"};
 
 std::map<std::string, Keyword *> Keyword::keywords =
     std::map<std::string, Keyword *>();
@@ -32,7 +29,8 @@ void Keyword::process() {
 
 std::string Keyword::getName() { return name; }
 
-void Keyword::assignInteractions(std::vector<std::string> foundInteractions) {
+void Keyword::assignInteractions(
+    const std::vector<std::string> &foundInteractions) {
   for (auto iter = foundInteractions.begin(); iter != foundInteractions.end();
        ++iter) {
     auto endDelimiter = std::string();
@@ -59,7 +57,7 @@ void Keyword::assignKeywordArguments() {
       getPartBetweenDelimiters(query, name, keywordArgumentsDelimiter);
 }
 
-void Keyword::prepare(std::string queryArg) {
+void Keyword::prepare(const std::string &queryArg) {
   query = queryArg;
   foundInteractions = std::map<std::string, std::string>();
   auto foundInteractions = std::vector<std::string>();
@@ -96,7 +94,7 @@ std::vector<std::string> Keyword::getCompatibleKeywords() {
 
 std::string Keyword::getQuery() { return query; }
 
-bool Keyword::isKeywordCompatible(std::string keyword) {
+bool Keyword::isKeywordCompatible(const std::string &keyword) {
   auto find =
       std::find(compatibleKeywords.begin(), compatibleKeywords.end(), keyword);
 
@@ -108,7 +106,7 @@ bool Keyword::isKeywordCompatible(std::string keyword) {
 }
 
 std::vector<ArgumentsForComparing>
-Keyword::parseWhereArguments(std::string whereArguments, Table *table) {
+Keyword::parseWhereArguments(const std::string &whereArguments, Table *table) {
   auto argumentsToCompare = std::vector<ArgumentsForComparing>();
   auto whereArgumentsSplitted =
       splitBySpace(whereArguments); // {col1, =, 1, AND, col2, =, 'a'}

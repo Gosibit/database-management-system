@@ -10,7 +10,7 @@
 
 auto hiddenStrings = std::map<int, std::string>();
 
-std::string replacePlaceholdersWithValues(std::string str) {
+std::string replacePlaceholdersWithValues(const std::string &str) {
   std::regex regex("<(\\d+)>");
   std::smatch match;
   std::string result = str;
@@ -43,7 +43,7 @@ std::string replaceValuesWithPlaceholders(std::string str) {
   return str;
 }
 
-void processQuery(std::string query) {
+void processQuery(const std::string &query) {
   auto &keywords = Keyword::keywords;
 
   auto queryWords = tokenize(query, " ");

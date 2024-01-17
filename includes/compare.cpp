@@ -2,9 +2,11 @@
 #include "compare.h"
 #include "ArgumentsForComparing.h"
 
-bool compareWithLogicalOperator(fieldValueType arg1, std::string operatorArg,
-                                fieldValueType arg2,
-                                std::string logicalOperator, bool actualState) {
+bool compareWithLogicalOperator(const fieldValueType &arg1,
+                                const std::string &operatorArg,
+                                const fieldValueType &arg2,
+                                const std::string &logicalOperator,
+                                const bool &actualState) {
   bool result;
   if (logicalOperator == "AND") {
     result = actualState && compare(arg1, operatorArg, arg2);
@@ -16,8 +18,8 @@ bool compareWithLogicalOperator(fieldValueType arg1, std::string operatorArg,
   return result;
 }
 
-bool compare(fieldValueType arg1, std::string operatorArg,
-             fieldValueType arg2) {
+bool compare(const fieldValueType &arg1, const std::string &operatorArg,
+             const fieldValueType &arg2) {
 
   if (operatorArg == "IS_NULL") {
     return std::holds_alternative<nullptr_t>(arg1);

@@ -6,7 +6,7 @@
 #include <fstream>
 #include <iostream>
 
-void Dump::dump(std::string path) {
+void Dump::dump(const std::string &path) {
   auto tables = Table::tables;
 
   std::ofstream dumpFile;
@@ -55,7 +55,7 @@ void Dump::dump(std::string path) {
   dumpFile.close();
 }
 
-void Dump::restore(std::string path) {
+void Dump::restore(const std::string &path) {
   for (auto &table : Table::tables) {
     delete table.second;
   }

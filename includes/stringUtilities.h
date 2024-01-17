@@ -1,19 +1,21 @@
 #pragma once
+#include "aliases.h"
 #include <string>
 #include <vector>
-#include "aliases.h"
 
-std::string getPartAfterDelimiter(std::string str, std::string delimiter);
-std::string getPartBeforeDelimiter(std::string str, std::string delimiter);
-std::string getPartBetweenDelimiters(std::string str,
-                                     std::string begginingDelimiter,
-                                     std::string endingDelimiter);
+std::string getPartAfterDelimiter(const std::string &str,
+                                  const std::string &delimiter);
+std::string getPartBeforeDelimiter(const std::string &str,
+                                   const std::string &delimiter);
+std::string getPartBetweenDelimiters(const std::string &str,
+                                     const std::string &begginingDelimiter,
+                                     const std::string &endingDelimiter);
 std::string removeAllOccurencies(std::string str, char toRemove);
 std::string removeAllOccurencies(std::string str, std::vector<char> toRemove);
-std::string removeBrackets(std::string str);
-std::vector<std::string> splitByComma(std::string str);
-std::vector<std::string> splitBySpace(std::string str);
-std::vector<std::string> splitByQueries(std::string str);
+std::string removeBrackets(const std::string &str);
+std::vector<std::string> splitByComma(const std::string &str);
+std::vector<std::string> splitBySpace(const std::string &str);
+std::vector<std::string> splitByQueries(const std::string &str);
 std::string removeSemicolons(std::string str);
-std::string trim(std::string str);
-std::string fieldToString(fieldValueType field);
+std::string trim(const std::string &str);
+std::string fieldToString(const fieldValueType &field);

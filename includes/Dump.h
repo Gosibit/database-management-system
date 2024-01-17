@@ -4,6 +4,6 @@
 
 class Dump {
 public:
-  static void dump(std::string path);
-  static void restore(std::string path);
+  static void dump(const std::string &path);
+  static void restore(const std::string &path);
 };

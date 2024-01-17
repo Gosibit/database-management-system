@@ -3,7 +3,7 @@
 #include "Keyword.h"
 #include <string>
 
-std::string replacePlaceholdersWithValues(std::string str);
+std::string replacePlaceholdersWithValues(const std::string &str);
 std::string replaceValuesWithPlaceholders(std::string str);
 
-void processQuery(std::string query);
+void processQuery(const std::string &query);

@@ -2,8 +2,10 @@
 #include "ArgumentsForComparing.h"
 #include "aliases.h"
 
-bool compareWithLogicalOperator(fieldValueType arg1, std::string operatorArg,
-                                fieldValueType arg2,
-                                std::string logicalOperator, bool actualState);
-bool compare(fieldValueType value, std::string operatorArg,
-             fieldValueType valueArg);
+bool compareWithLogicalOperator(const fieldValueType &arg1,
+                                const std::string &operatorArg,
+                                const fieldValueType &arg2,
+                                const std::string &logicalOperator,
+                                const bool &actualState);
+bool compare(const fieldValueType &value, const std::string &operatorArg,
+             const fieldValueType &valueArg);
