@@ -9,8 +9,6 @@ add_executable(cpp-db-mvp main.cpp includes/Table.cpp includes/tokenizer.cpp inc
         includes/TypeDerivaties.cpp
         includes/TypeDerivaties.h
         init.cpp
-        includes/Row.cpp
-        includes/Row.h
         includes/aliases.h
         includes/ArgumentsForComparing.cpp
         includes/ArgumentsForComparing.h
