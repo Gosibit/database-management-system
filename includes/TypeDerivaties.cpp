@@ -7,7 +7,7 @@
 #include <string>
 
 Int::Int() : Type("int") { Type::types.insert(std::make_pair("int", this)); }
-// check
+
 bool Int::isValueValid(const std::string &value) {
   try {
     auto parsedValue = std::stoi(value);
@@ -32,10 +32,7 @@ Float::Float() : Type("float") {
 
 bool Float::isValueValid(const std::string &value) {
   try {
-    auto parsedValue = std::stof(value);
-    //    fmt::println("parsedValue: {}, value: {}",
-    //    std::to_string(parsedValue), value); if (std::to_string(parsedValue)
-    //    != value) return false;
+    std::stof(value);
   } catch (std::exception &e) {
     return false;
   }

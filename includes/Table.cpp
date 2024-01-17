@@ -200,7 +200,7 @@ void Table::drawTable(const std::vector<std::string> &columnNames,
     horizontalLine += "-+-";
   }
   horizontalLine = horizontalLine.substr(0, horizontalLine.size() -
-                                                1); // always one - too much
+                                                1); // always one '-' too many
   fmt::println("{}", horizontalLine);
   fmt::print("| ");
   for (auto &columnName : columnNames) {
