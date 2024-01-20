@@ -1,20 +1,23 @@
 #include "compare.h"
 #include "ArgumentsForComparing.h"
+#include "stringUtilities.h"
+#include <fmt/core.h>
 
 bool compareWithLogicalOperator(const fieldValueType &arg1,
                                 const std::string &operatorArg,
                                 const fieldValueType &arg2,
                                 const std::string &logicalOperator,
                                 const bool &actualState) {
-  bool result;
+
+  auto comparationResult = compare(arg1, operatorArg, arg2);
   if (logicalOperator == "AND") {
-    result = actualState && compare(arg1, operatorArg, arg2);
+    return actualState && comparationResult;
+
   } else if (logicalOperator == "OR") {
-    result = actualState || compare(arg1, logicalOperator, arg2);
+    return actualState || comparationResult;
   } else {
-    result = compare(arg1, operatorArg, arg2);
+    return comparationResult;
   }
-  return result;
 }
 
 bool compare(const fieldValueType &arg1, const std::string &operatorArg,
@@ -63,6 +66,8 @@ bool compare(const fieldValueType &arg1, const std::string &operatorArg,
     if (operatorArg == "=") {
       return std::get<double>(arg1) == std::get<double>(arg2);
     } else if (operatorArg == ">") {
+      fmt::println("arg1: {}, arg2: {}", std::get<double>(arg1),
+                   std::get<double>(arg2));
       return std::get<double>(arg1) > std::get<double>(arg2);
     } else if (operatorArg == "<") {
       return std::get<double>(arg1) < std::get<double>(arg2);

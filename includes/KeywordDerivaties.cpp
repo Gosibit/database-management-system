@@ -11,7 +11,8 @@
 #include "tokenizer.h"
 
 AlterTable::AlterTable()
-    : Keyword("ALTER_TABLE", {"ADD_COLUMN", "DROP_COLUMN", "RENAME_TO"}) {
+    : Keyword("ALTER_TABLE",
+              {"ADD_COLUMN", "DROP_COLUMN", "RENAME_TO", "ALTER_COLUMN"}) {
   Keyword::keywords.insert(std::make_pair("ALTER_TABLE", this));
 };
 
@@ -36,6 +37,8 @@ void AlterTable::process() {
       auto columnName = trim(args[0]);
       auto columnType = trim(args[1]);
 
+      fmt::println("Adding column {} of type {}", columnName, columnType);
+
       table->addColumn(columnName, columnType, nullable, primaryKey, unique);
     }
 
@@ -54,8 +57,7 @@ void AlterTable::process() {
       auto columnName = trim(args[0]);
       auto columnType = trim(args[1]);
 
-      table->dropColumn(columnName);
-      table->addColumn(columnName, columnType, nullable, primaryKey, unique);
+      table->alterColumn(columnName, columnType, nullable, primaryKey, unique);
     }
   }
 }
@@ -231,12 +233,9 @@ DumpRestore::DumpRestore() : Keyword("DUMP_RESTORE", {"<"}) {
 
 void DumpRestore::process() {
   auto option = trim(keywordArguments);
-  if (option == "DATABASE") {
-    auto path = trim(foundInteractions["<"]);
-    Dump::restore(path);
-  } else {
-    throw std::runtime_error("Invalid option");
-  }
+
+  auto path = trim(foundInteractions["<"]);
+  Dump::restore(path);
 }
 
 DumpCreate::DumpCreate() : Keyword("DUMP_CREATE", {">"}) {
@@ -245,10 +244,6 @@ DumpCreate::DumpCreate() : Keyword("DUMP_CREATE", {">"}) {
 
 void DumpCreate::process() {
   auto option = trim(keywordArguments);
-  if (option == "DATABASE") {
-    auto path = trim(foundInteractions[">"]);
-    Dump::dump(path);
-  } else {
-    throw std::runtime_error("Invalid option");
-  }
+  auto path = trim(foundInteractions[">"]);
+  Dump::dump(path);
 }

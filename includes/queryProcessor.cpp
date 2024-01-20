@@ -55,3 +55,5 @@ void processQuery(const std::string &query) {
     keyword->process();
   }
 }
+
+void emptyHiddenStrings() { hiddenStrings.clear(); }

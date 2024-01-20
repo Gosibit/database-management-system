@@ -44,8 +44,6 @@ Double::Double() : Type("double") {
 bool Double::isValueValid(const std::string &value) {
   try {
     auto parsedValue = std::stod(value);
-    if (std::to_string(parsedValue) != value)
-      return false;
   } catch (std::exception &e) {
     return false;
   }

@@ -15,11 +15,15 @@ class Column {
 public:
   Column(const std::string &nameArg, Type *typeArg, const bool &nullableArg,
          const bool &primaryKeyArg, const bool &uniqueArg);
-  
+
   void println();
   std::string getName();
   Type *getType();
   bool isNullable();
   bool isPrimaryKey();
   bool isUnique();
+  void setPrimaryKey(bool &primaryKeyArg);
+  void setUnique(bool &uniqueArg);
+  void setNullable(bool &nullableArg);
+  void setType(Type *typeArg);
 };

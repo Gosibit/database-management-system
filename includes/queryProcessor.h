@@ -5,5 +5,6 @@
 
 std::string replacePlaceholdersWithValues(const std::string &str);
 std::string replaceValuesWithPlaceholders(std::string str);
+void emptyHiddenStrings();
 
 void processQuery(const std::string &query);

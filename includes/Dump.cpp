@@ -65,7 +65,10 @@ void Dump::restore(const std::string &path) {
   dumpFile.open("../" + path);
   std::string line;
   while (std::getline(dumpFile, line)) {
+    line = replaceValuesWithPlaceholders(line);
+    line = removeAllOccurencies(line, '\'');
     processQuery(line);
+    emptyHiddenStrings();
   }
   dumpFile.close();
 }

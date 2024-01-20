@@ -22,3 +22,11 @@ bool Column::isNullable() { return nullable; }
 bool Column::isPrimaryKey() { return primaryKey; }
 
 bool Column::isUnique() { return unique; }
+
+void Column::setPrimaryKey(bool &primaryKeyArg) { primaryKey = primaryKeyArg; }
+
+void Column::setUnique(bool &uniqueArg) { unique = uniqueArg; }
+
+void Column::setNullable(bool &nullableArg) { nullable = nullableArg; }
+
+void Column::setType(Type *typeArg) { type = typeArg; }

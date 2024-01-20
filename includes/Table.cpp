@@ -9,6 +9,45 @@
 #include <ranges>
 #include <variant>
 
+bool doesRowWithSameValueExist(
+    std::map<std::string, std::map<Column *, fieldValueType>> &rows,
+    Column *column) {
+
+  auto columnValues = std::vector<fieldValueType>();
+  for (auto &row : rows) {
+    if (!std::holds_alternative<nullptr_t>(row.second[column]) &&
+        std::find(columnValues.begin(), columnValues.end(),
+                  row.second[column]) != columnValues.end()) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool doesRowWithNullValueExist(
+    std::map<std::string, std::map<Column *, fieldValueType>> &rows,
+    Column *column) {
+
+  for (auto &row : rows) {
+    if (std::holds_alternative<nullptr_t>(row.second[column])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool doesRowWithNotNullValueExist(
+    std::map<std::string, std::map<Column *, fieldValueType>> &rows,
+    Column *column) {
+
+  for (auto &row : rows) {
+    if (!std::holds_alternative<nullptr_t>(row.second[column])) {
+      return true;
+    }
+  }
+  return false;
+}
+
 std::map<std::string, Table *> Table::tables = std::map<std::string, Table *>();
 
 Table::Table(const std::string &nameArg) {
@@ -36,12 +75,28 @@ Column *Table::getColumn(std::string columnName) {
   return columns[columnName];
 }
 
-void Table::renameTo(std::string newName) { name = newName; }
+void Table::renameTo(std::string newName) {
+  if (Table::tables.find(newName) != Table::tables.end())
+    throw std::runtime_error("Table " + newName + " already exists");
+  Table::tables.erase(name);
+  Table::tables.insert(std::make_pair(newName, this));
+  name = newName;
+}
 
 void Table::addColumn(std::string columnName, std::string columnType,
                       bool nullable, bool primaryKey, bool unique) {
 
+  if (columns.find(columnName) != columns.end()) {
+    throw std::runtime_error("Column " + columnName + " already exists");
+  }
+
   auto *type = Type::getType(columnType);
+
+  if ((primaryKey || !nullable) && !rows.empty()) {
+    throw std::runtime_error(
+        "Can't add not nullable column to non empty table, "
+        "consider truncating table first");
+  }
 
   if (nullable && primaryKey) {
     throw std::runtime_error("Column " + columnName +
@@ -51,9 +106,70 @@ void Table::addColumn(std::string columnName, std::string columnType,
 
   auto *column = new Column(columnName, type, nullable, primaryKey, unique);
   columns.insert(std::make_pair(columnName, column));
+
+  for (auto &row : rows) {
+    row.second.insert(std::make_pair(column, nullptr));
+  }
+}
+
+void Table::alterColumn(std::string columnName, std::string columnType,
+                        bool nullable, bool primaryKey, bool unique) {
+
+  if (columns.find(columnName) == columns.end()) {
+    throw std::runtime_error("Column " + columnName + " not found");
+  }
+
+  auto *column = columns[columnName];
+
+  if (nullable && primaryKey) {
+    throw std::runtime_error("Column " + columnName +
+                             " can't be nullable and primary key, consider "
+                             "adding NOT_NULL constraint");
+  }
+
+  if (!rows.empty()) {
+    if (!column->isPrimaryKey() && primaryKey) {
+      if (doesRowWithNullValueExist(rows, column) ||
+          doesRowWithSameValueExist(rows, column))
+        throw std::runtime_error(
+            "Cannot change PRIMARY_KEY constraint on column " + columnName +
+            ", "
+            "consider removing NULL values and duplicates");
+    }
+    if (!column->isUnique() && unique) {
+      if (doesRowWithSameValueExist(rows, column))
+        throw std::runtime_error(
+            "Column " + columnName +
+            " contains duplicate values, cannot add UNIQUE "
+            "constraint, consider removing duplicates");
+    }
+
+    if (column->isNullable() && !nullable) {
+      if (doesRowWithNullValueExist(rows, column))
+        throw std::runtime_error("Column " + columnName +
+                                 " contains NULL values");
+    }
+    if (columnType != column->getType()->getName() &&
+        doesRowWithNotNullValueExist(rows, column)) {
+      throw std::runtime_error("Cannot change type of column " + columnName +
+                               "while it contains not null values");
+    }
+  }
+
+  auto *type = Type::getType(columnType);
+
+  column->setNullable(nullable);
+  column->setPrimaryKey(primaryKey);
+  column->setUnique(unique);
+  column->setType(type);
 }
 
 void Table::dropColumn(std::string columnName) {
+
+  for (auto &row : rows) {
+    row.second.erase(getColumn(columnName));
+  }
+
   delete columns.at(columnName);
   columns.erase(columnName);
 }
@@ -116,10 +232,15 @@ void Table::update(
 void Table::setValues(
     std::vector<std::pair<std::string, std::string>> &columnNamesAndValues,
     std::string rowId) {
+
+  // validation for every field before setting to avoid partial changes
   for (auto &pair : columnNamesAndValues) {
     auto [columnName, value] = pair;
-
     validateNewValue(columnName, value);
+  }
+
+  for (auto &pair : columnNamesAndValues) {
+    auto [columnName, value] = pair;
 
     auto *column = getColumn(columnName);
     auto *type = column->getType();
@@ -141,11 +262,17 @@ void Table::validateNewValue(const std::string &columnName,
 
   auto replacedValue = replacePlaceholdersWithValues(value);
 
+  if (column->isPrimaryKey() && value == "NULL") {
+    throw std::runtime_error("Column " + columnName +
+                             " is primary key, cannot set NULL value");
+  }
+
   if (column->isUnique() || column->isPrimaryKey()) {
     for (auto &row : rows) {
       if (value != "NULL" &&
           fieldToString(row.second[column]) == replacedValue) {
-        throw std::runtime_error("Value " + replacedValue + " is not unique");
+        throw std::runtime_error("Value " + replacedValue + " in column " +
+                                 columnName + " is not unique");
       }
     }
   }
@@ -271,6 +398,5 @@ std::vector<std::string> Table::getIdRowsMatchingConditions(
       meetingConditionsRowIds.push_back(row.first);
     }
   }
-  fmt::println("meetingConditionsRowIds: {}", meetingConditionsRowIds);
   return meetingConditionsRowIds;
 }

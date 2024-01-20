@@ -20,12 +20,15 @@ public:
   static Table *getTable(std::string name);
 
   std::map<std::string, std::map<Column *, fieldValueType>> getRows();
-  
+
   std::map<std::string, Column *> getColumns();
   void renameTo(std::string newName);
 
   void addColumn(std::string columnName, std::string columnType, bool nullable,
                  bool primaryKey, bool unique);
+
+  void alterColumn(std::string columnName, std::string columnType,
+                   bool nullable, bool primaryKey, bool unique);
 
   void dropColumn(std::string columnName);
 
