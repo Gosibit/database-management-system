@@ -5,6 +5,7 @@
 auto createTable = CreateTable();
 auto alterTable = AlterTable();
 auto dropTable = DropTable();
+auto desc = Desc();
 auto insertInto = InsertInto();
 auto select = Select();
 auto update = Update();

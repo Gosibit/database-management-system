@@ -6,6 +6,15 @@
 #include <iostream>
 #include <map>
 
+struct PrintInstruction {
+  std::vector<std::string> columnNames;
+  std::vector<std::vector<std::string>> rows;
+
+  PrintInstruction(std::vector<std::string> columnNames,
+                   std::vector<std::vector<std::string>> rows)
+      : columnNames(columnNames), rows(rows) {}
+};
+
 class Table {
   std::string name;
   std::map<std::string, Column *> columns;                  // name, type
@@ -32,6 +41,8 @@ public:
 
   void dropColumn(std::string columnName);
 
+  void describe();
+
   std::vector<std::string> getColumnNames();
 
   void select(const std::vector<std::string> &columnNames,
@@ -55,11 +66,16 @@ public:
 
   void printColumns();
 
-  void drawTable(const std::vector<std::string> &columnNames,
-                 const std::vector<std::string> &rowIdsToSelect);
+  void drawTable(PrintInstruction &printInstruction);
 
   std::vector<std::string> getIdRowsMatchingConditions(
       const std::vector<ArgumentsForComparing> &argumentsForComparing);
+
+  PrintInstruction preparePrintInstructionForSelect(
+      const std::vector<std::string> &columnNames,
+      const std::vector<std::string> &rowIdsToSelect);
+
+  PrintInstruction preparePrintInstructionForDescribe();
 
   Column *getColumn(std::string columnName);
 };

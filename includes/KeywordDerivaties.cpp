@@ -37,8 +37,6 @@ void AlterTable::process() {
       auto columnName = trim(args[0]);
       auto columnType = trim(args[1]);
 
-      fmt::println("Adding column {} of type {}", columnName, columnType);
-
       table->addColumn(columnName, columnType, nullable, primaryKey, unique);
     }
 
@@ -165,6 +163,14 @@ void Select::process() {
   if (std::find(trimmedKeywordArgs.begin(), trimmedKeywordArgs.end(), '*') !=
       trimmedKeywordArgs.end()) {
     columnNames = table->getColumnNames();
+    // if id move to beggining
+    if (std::find(columnNames.begin(), columnNames.end(), "id") !=
+        columnNames.end()) {
+      auto idIndex = std::find(columnNames.begin(), columnNames.end(), "id");
+      columnNames.erase(idIndex);
+      columnNames.insert(columnNames.begin(), "id");
+    }
+
   } else
     columnNames = splitByComma(trimmedKeywordArgs);
 
@@ -246,4 +252,14 @@ void DumpCreate::process() {
   auto option = trim(keywordArguments);
   auto path = trim(foundInteractions[">"]);
   Dump::dump(path);
+}
+
+Desc::Desc() : Keyword("DESC", {}) {
+  Keyword::keywords.insert(std::make_pair("DESC", this));
+};
+
+void Desc::process() {
+  auto tableName = trim(keywordArguments);
+  auto *table = Table::getTable(tableName);
+  table->describe();
 }

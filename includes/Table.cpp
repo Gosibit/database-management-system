@@ -285,6 +285,11 @@ void Table::validateNewValue(const std::string &columnName,
   }
 }
 
+void Table::describe() {
+  auto printInstruction = preparePrintInstructionForDescribe();
+  drawTable(printInstruction);
+}
+
 void Table::select(
     const std::vector<std::string> &columnNames,
     const std::vector<ArgumentsForComparing> &argumentsForComparing) {
@@ -292,37 +297,91 @@ void Table::select(
   auto meetingConditionsRowIds =
       getIdRowsMatchingConditions(argumentsForComparing);
 
-  drawTable(columnNames, meetingConditionsRowIds);
+  auto printInstruction =
+      preparePrintInstructionForSelect(columnNames, meetingConditionsRowIds);
+  drawTable(printInstruction);
 }
 
-void Table::drawTable(const std::vector<std::string> &columnNames,
-                      const std::vector<std::string> &rowIdsToSelect) {
-  auto longestValueInColumn = std::map<std::string, int>();
+PrintInstruction Table::preparePrintInstructionForSelect(
+    const std::vector<std::string> &columnNames,
+    const std::vector<std::string> &rowIdsToSelect) {
 
-  for (auto &columnName : columnNames) {
-    longestValueInColumn[columnName] = columnName.size();
-  }
+  auto printInstruction = std::vector<std::vector<std::string>>();
 
   for (auto &rowId : rowIdsToSelect) {
     if (rows.find(rowId) == rows.end()) {
       throw std::runtime_error("Row with id " + rowId + " not found");
     }
     auto row = rows[rowId];
+
+    auto rowInstruction = std::vector<std::string>();
     for (auto &columnName : columnNames) {
       auto value = fieldToString(row[getColumn(columnName)]);
-      if (longestValueInColumn.find(columnName) == longestValueInColumn.end()) {
-        longestValueInColumn[columnName] = value.size();
-      } else {
-        if (value.size() > longestValueInColumn[columnName]) {
-          longestValueInColumn[columnName] = value.size();
+      rowInstruction.push_back(value);
+    }
+    printInstruction.push_back(rowInstruction);
+  }
+
+  return PrintInstruction(columnNames, printInstruction);
+}
+
+PrintInstruction Table::preparePrintInstructionForDescribe() {
+
+  auto printInstruction = std::vector<std::vector<std::string>>();
+
+
+
+  for (auto &column : columns) {
+    auto rowInstruction = std::vector<std::string>();
+    rowInstruction.push_back(column.first);
+    rowInstruction.push_back(column.second->getType()->getName());
+    rowInstruction.push_back(column.second->isNullable() ? "YES" : "NO");
+    rowInstruction.push_back(column.second->isPrimaryKey() ? "YES" : "NO");
+    rowInstruction.push_back(column.second->isUnique() ? "YES" : "NO");
+    printInstruction.push_back(rowInstruction);
+  }
+
+  //move row instruction with id to the beggining
+        auto idIndex = std::find_if(printInstruction.begin(), printInstruction.end(), [](auto &row) {
+        return row[0] == "id";
+        });
+        if (idIndex != printInstruction.end()) {
+            auto idRow = *idIndex;
+            printInstruction.erase(idIndex);
+            printInstruction.insert(printInstruction.begin(), idRow);
         }
+
+  return PrintInstruction({"Field", "Type", "Null", "Primary Key", "Unique"},
+                          printInstruction);
+}
+
+void Table::drawTable(PrintInstruction &printInstruction) {
+
+  auto columnNames = printInstruction.columnNames;
+  auto rows = printInstruction.rows;
+
+  auto longestValueInColumn = std::map<std::string, int>();
+
+  for (auto &columnName : columnNames) {
+    longestValueInColumn[columnName] = columnName.size();
+  }
+
+  for (auto &row : rows) {
+    for (int i = 0; i < row.size(); i++) {
+      auto value = row[i];
+      if (value.size() > longestValueInColumn[columnNames[i]]) {
+        longestValueInColumn[columnNames[i]] = value.size();
       }
     }
   }
+  auto longestValues = std::vector<int>();
+  for (int i = 0; i < columnNames.size(); i++) {
+    longestValues.push_back(longestValueInColumn[columnNames[i]]);
+  }
 
   auto horizontalLine = std::string("*-");
-  for (auto &longestValue : longestValueInColumn) {
-    horizontalLine.append(longestValue.second, '-');
+  for (auto &longestValue : longestValues) {
+    horizontalLine.append(longestValue, '-');
     horizontalLine += "-+-";
   }
   horizontalLine = horizontalLine.substr(0, horizontalLine.size() -
@@ -338,24 +397,20 @@ void Table::drawTable(const std::vector<std::string> &columnNames,
   fmt::println("");
   fmt::println("{}", horizontalLine);
 
-  for (auto &rowId : rowIdsToSelect) {
+  for (auto &el : rows) {
     fmt::print("| ");
-    if (rows.find(rowId) == rows.end()) {
-      throw std::runtime_error("Row with id " + rowId + " not found");
-    }
-    auto row = rows[rowId];
-    for (auto &promptedColumnName : columnNames) {
-      auto value = fieldToString(row[getColumn(promptedColumnName)]);
 
-      value.append(longestValueInColumn[promptedColumnName] - value.size(),
-                   ' ');
+    for (int i = 0; i < el.size(); i++) {
+      auto value = el[i];
+
+      value.append(longestValues[i] - value.size(), ' ');
       value += " | ";
       fmt::print("{}", value);
     }
 
     fmt::println("");
   }
-  if (rowIdsToSelect.size() == 0) {
+  if (rows.size() == 0) {
     auto supplyStr = std::string("| ");
     supplyStr.append(horizontalLine.size() - 4, ' ');
     supplyStr += " |";

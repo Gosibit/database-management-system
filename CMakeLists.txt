@@ -33,10 +33,3 @@ FetchContent_MakeAvailable(fmt)
 
 target_link_libraries(cpp-db-mvp fmt)
 
-add_executable(tests tests.cpp includes/Table.cpp includes/tokenizer.cpp includes/Keyword.cpp includes/KeywordDerivaties.cpp init.cpp includes/Column.cpp includes/stringUtilities.cpp
-        includes/Type.h
-        includes/Type.cpp
-        includes/TypeDerivaties.cpp
-        includes/TypeDerivaties.h)
-
-target_link_libraries(tests fmt)

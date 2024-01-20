@@ -21,6 +21,12 @@ public:
   void process() override;
 };
 
+class Desc : public Keyword {
+public:
+  Desc();
+  void process() override;
+};
+
 class InsertInto : public Keyword {
 public:
   InsertInto();
