@@ -2,7 +2,6 @@
 #include "Table.h"
 #include "queryProcessor.h"
 #include "stringUtilities.h"
-#include <fmt/core.h>
 #include <fstream>
 #include <iostream>
 

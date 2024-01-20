@@ -2,10 +2,7 @@
 #include "Keyword.h"
 #include "tokenizer.h"
 #include <fmt/core.h>
-#include <fmt/ranges.h>
-#include <ranges>
 #include <regex>
-#include <stack>
 
 auto hiddenStrings = std::map<int, std::string>();
 

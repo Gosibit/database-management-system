@@ -1,7 +1,4 @@
 #include "TypeDerivaties.h"
-#include <fmt/core.h>
-#include <iostream>
-#include <sstream>
 #include <string>
 
 Int::Int() : Type("int") { Type::types.insert(std::make_pair("int", this)); }

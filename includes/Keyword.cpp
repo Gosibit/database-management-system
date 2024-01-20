@@ -8,7 +8,6 @@
 
 #include "ArgumentsForComparing.h"
 #include "Table.h"
-#include "queryProcessor.h"
 #include "stringUtilities.h"
 #include "tokenizer.h"
 

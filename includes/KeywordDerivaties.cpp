@@ -1,12 +1,10 @@
 #include "KeywordDerivaties.h"
 
 #include <fmt/core.h>
-#include <fmt/ranges.h>
 
 #include "ArgumentsForComparing.h"
 #include "Dump.h"
 #include "Table.h"
-#include "queryProcessor.h"
 #include "stringUtilities.h"
 #include "tokenizer.h"
 

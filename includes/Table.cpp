@@ -4,8 +4,6 @@
 #include "queryProcessor.h"
 #include "stringUtilities.h"
 #include <fmt/core.h>
-#include <fmt/ranges.h>
-#include <iostream>
 #include <ranges>
 #include <variant>
 

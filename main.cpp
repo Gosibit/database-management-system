@@ -5,6 +5,14 @@
 #include <fmt/core.h>
 #include <iostream>
 
+//ZASADY
+//1. Wszystkie nazwy tabel i kolumn sa case sensitive
+//2. Wszystkie nazwy tabel i kolumn zawartych w tabelach sa unikalne
+//3. Zawartosc tekstowa podajemy w pojedynczych apostrofach
+//4. Przy porownywaniu tekstów bierzemy pod uwagę wielkosc liter
+//5. Przy porownywaniu wartosci musimy rozdzielic nazwę kolumny, operator porownania i wartosc spacjami (np. col1 = 10)
+
+
 //PRZYKLADY
 //DDL
 // CREATE_TABLE tab1 (id int PRIMARY_KEY NOT_NULL, col1 varchar NOT_NULL, col2 varchar, col3 int UNIQUE);
@@ -28,11 +36,6 @@
 //BACKUP
 //DUMP_CREATE > dumps/dump.txt
 //DUMP_RESTORE < dumps/dump.txt
-
-
-
-
-
 
 int main() {
   while (true) {

@@ -1,5 +1,4 @@
 #include "Type.h"
-#include "aliases.h"
 #include <string>
 std::map<std::string, Type *> Type::types = std::map<std::string, Type *>();
 
